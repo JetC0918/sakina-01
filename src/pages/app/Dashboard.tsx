@@ -7,7 +7,7 @@ export default function Dashboard() {
   const { state, actions } = useSakina();
 
   const simulateStress = () => {
-    actions.updateBioStatus({ currentLoad: 78, status: 'high' });
+    actions.updateBioStatus({ currentLoad: 120, status: 'overload' });
     actions.triggerNudge({
       message: 'I noticed your stress levels are elevated.',
       type: 'breathing',
@@ -16,7 +16,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold text-foreground">Welcome back</h1>
         <p className="text-muted-foreground">Here's your wellness overview for today.</p>
@@ -34,6 +34,27 @@ export default function Dashboard() {
           </Button>
         </CardContent>
       </Card>
+
+      {/* Active Nudge Card - Shows when stress is triggered */}
+      {state.nudge.active && (
+        <Card className="border-primary bg-primary/5 animate-in fade-in slide-in-from-top-2 duration-300">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <CardTitle className="flex items-center gap-2">
+                🌬️ Sakina noticed something
+              </CardTitle>
+              <Button variant="ghost" size="sm" onClick={actions.dismissNudge}>
+                Dismiss
+              </Button>
+            </div>
+            <CardDescription>{state.nudge.message}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">{state.nudge.context}</p>
+            <Button className="w-full">Start Breathing Exercise</Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Current Mood Card */}
       <Card>

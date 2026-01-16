@@ -1,7 +1,9 @@
-import { Home, BookText, Heart, BarChart3, Settings } from 'lucide-react';
+import { Home, BookText, Heart, BarChart3, Settings, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { SakinaLogo } from '@/components/SakinaLogo';
 
 interface NavItem {
   icon: React.ElementType;
@@ -17,7 +19,12 @@ const navItems: NavItem[] = [
   { icon: Settings, label: 'Settings', path: '/app/settings' },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isCollapsed: boolean;
+  toggleSidebar: () => void;
+}
+
+export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const location = useLocation();
 
   const isActive = (path: string) => {
@@ -25,8 +32,26 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="hidden md:flex flex-col w-16 border-r border-border bg-sidebar h-full">
-      <nav className="flex flex-col items-center gap-2 py-4" aria-label="Main navigation">
+    <aside
+      className={cn(
+        "hidden md:flex flex-col border-r border-border bg-sidebar h-full transition-all duration-300",
+        "w-full"
+      )}
+    >
+      {/* App Header / Logo */}
+      <div className="h-16 flex items-center px-3 border-b border-border mb-2">
+        <div className="w-10 h-10 flex items-center justify-center shrink-0">
+          <SakinaLogo className="w-8 h-8" />
+        </div>
+        <div className={cn(
+          "overflow-hidden transition-all duration-300 ease-in-out ml-2",
+          isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+        )}>
+          <span className="text-xl font-bold tracking-tight">Sakina</span>
+        </div>
+      </div>
+
+      <nav className="flex flex-col gap-2 py-2 flex-1 px-3" aria-label="Main navigation">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -36,19 +61,58 @@ export function Sidebar() {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200',
+                'flex items-center transition-all duration-200 group h-10 rounded-md',
                 'hover:bg-accent/50',
                 active && 'bg-accent text-primary'
               )}
               aria-label={item.label}
               aria-current={active ? 'page' : undefined}
             >
-              <Icon className="w-5 h-5" aria-hidden="true" />
-              <span className="sr-only">{item.label}</span>
+              {/* 
+                 Icon Container: Fixed width to ensure stability.
+                 w-10 matches the collapsed width behavior visually within the padding.
+                 flex shrink-0 prevents it from squashing.
+                 justify-center centers the icon within this 40px block.
+              */}
+              <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                <Icon className={cn("w-5 h-5", active && "text-primary")} aria-hidden="true" />
+              </div>
+
+              <div className={cn(
+                "overflow-hidden transition-all duration-300 ease-in-out",
+                isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100 ml-2"
+              )}>
+                <span className="text-sm font-medium whitespace-nowrap">
+                  {item.label}
+                </span>
+              </div>
             </NavLink>
           );
         })}
       </nav>
+
+      {/* Collapse Toggle */}
+      <div className="p-2 border-t border-border flex justify-center">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleSidebar}
+          className={cn(
+            "hover:bg-accent/50 transition-all duration-300",
+            isCollapsed ? "w-10 h-10 rounded-md p-0" : "w-full flex items-center justify-between px-3"
+          )}
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <span className={cn(
+            "text-sm font-medium overflow-hidden transition-all duration-300",
+            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+          )}>
+            Collapse
+          </span>
+          {isCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </Button>
+      </div>
     </aside>
   );
 }
+

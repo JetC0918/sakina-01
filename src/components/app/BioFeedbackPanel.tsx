@@ -1,12 +1,15 @@
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSakina } from '@/hooks/useSakina';
+import { BreathingModal } from './BreathingModal';
 import { Activity, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export function BioFeedbackPanel() {
   const { state, actions } = useSakina();
   const { bioStatus, nudge } = state;
+  const [showBreathingModal, setShowBreathingModal] = React.useState(false);
 
   const getStatusColor = () => {
     switch (bioStatus.status) {
@@ -32,69 +35,85 @@ export function BioFeedbackPanel() {
       case 'high':
         return 'Elevated';
       case 'overload':
-        return 'Overload';
+        return 'Stressed';
       default:
         return 'Unknown';
     }
   };
 
+  const handleStartExercise = () => {
+    setShowBreathingModal(true);
+  };
+
+  const handleCompleteExercise = () => {
+    setShowBreathingModal(false);
+    actions.dismissNudge();
+  };
+
   return (
-    <div className="flex flex-col gap-4 h-full">
-      {/* Bio Status Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-semibold flex items-center gap-2">
-            <Activity className="w-4 h-4" />
-            Current Status
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            <div>
-              <div className="text-2xl font-bold">{bioStatus.currentLoad}</div>
-              <div className={cn('inline-block px-2 py-1 rounded-md text-xs font-medium', getStatusColor())}>
-                {getStatusLabel()}
-              </div>
-            </div>
-            <div className="text-xs text-muted-foreground">
-              Last updated: {new Date(bioStatus.lastUpdated).toLocaleTimeString()}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <>
+      <BreathingModal
+        isOpen={showBreathingModal}
+        onClose={handleCompleteExercise}
+      />
 
-      {/* Nudge Card - Only shown when active */}
-      {nudge.active && (
-        <Card className="border-primary bg-primary/5">
-          <CardHeader>
-            <div className="flex items-start justify-between">
-              <CardTitle className="text-sm font-semibold">{nudge.type === 'breathing' ? '🌬️ Take a Breath' : nudge.type === 'grounding' ? '🌳 Ground Yourself' : '💭 Reflect'}</CardTitle>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={actions.dismissNudge} aria-label="Dismiss nudge">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <CardDescription className="text-xs">{nudge.message}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-muted-foreground mb-3">{nudge.context}</p>
-            <Button size="sm" className="w-full">
-              Start Exercise
-            </Button>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Session Goal Placeholder */}
-      {!nudge.active && (
+      <div className="flex flex-col gap-4 h-full">
+        {/* Bio Status Card */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Today's Goal</CardTitle>
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Activity className="w-4 h-4" />
+              Current Status
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">Stay mindful and balanced throughout your day.</p>
+            <div className="space-y-3">
+              <div>
+                <div className="text-2xl font-bold">{bioStatus.currentLoad}</div>
+                <div className={cn('inline-block px-2 py-1 rounded-md text-xs font-medium', getStatusColor())}>
+                  {getStatusLabel()}
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Last updated: {new Date(bioStatus.lastUpdated).toLocaleTimeString()}
+              </div>
+            </div>
           </CardContent>
         </Card>
-      )}
-    </div>
+
+        {/* Nudge Card - Only shown when active */}
+        {nudge.active && (
+          <Card className="border-primary bg-primary/5">
+            <CardHeader>
+              <div className="flex items-start justify-between">
+                <CardTitle className="text-sm font-semibold">{nudge.type === 'breathing' ? '🌬️ Take a Breath' : nudge.type === 'grounding' ? '🌳 Ground Yourself' : '💭 Reflect'}</CardTitle>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={actions.dismissNudge} aria-label="Dismiss nudge">
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+              <CardDescription className="text-xs">{nudge.message}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground mb-3">{nudge.context}</p>
+              <Button size="sm" className="w-full" onClick={handleStartExercise}>
+                Start Exercise
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Session Goal Placeholder */}
+        {!nudge.active && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-semibold">Today's Goal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">Stay mindful and balanced throughout your day.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </>
   );
 }

@@ -8,11 +8,19 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 
 export function AppLayout() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background w-full flex flex-col md:grid md:grid-cols-[64px_1fr] lg:grid-cols-[64px_1fr_320px]">
+    <div
+      className={`min-h-screen bg-background w-full flex flex-col md:grid transition-all duration-300 ease-in-out
+        ${isSidebarCollapsed ? 'md:grid-cols-[64px_1fr]' : 'md:grid-cols-[240px_1fr]'} 
+        ${isSidebarCollapsed ? 'lg:grid-cols-[64px_1fr_320px]' : 'lg:grid-cols-[240px_1fr_320px]'}`}
+    >
       {/* Desktop Sidebar */}
-      <Sidebar />
+      <Sidebar
+        isCollapsed={isSidebarCollapsed}
+        toggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+      />
 
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 min-h-screen">

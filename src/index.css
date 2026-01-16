@@ -9,40 +9,53 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* Sakina: Calm, trustworthy wellness palette */
-    --background: 206 47% 95%; /* #EAF3FA soft blue background */
-    --foreground: 222 47% 11%; /* #0F172A dark text */
+    --background: 206 47% 95%;
+    /* #EAF3FA soft blue background */
+    --foreground: 222 47% 11%;
+    /* #0F172A dark text */
 
-    --card: 0 0% 100%; /* Pure white cards */
+    --card: 0 0% 100%;
+    /* Pure white cards */
     --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
     /* Primary: Warm yellow - hopeful, energizing */
-    --primary: 54 100% 61%; /* #FFEB3B */
+    --primary: 54 100% 61%;
+    /* #FFEB3B */
     --primary-foreground: 0 0% 0%;
-    --primary-soft: 54 100% 82%; /* #FFF7A8 */
+    --primary-soft: 54 100% 82%;
+    /* #FFF7A8 */
 
     /* Secondary: Dark slate for contrast */
-    --secondary: 220 43% 11%; /* #111827 */
+    --secondary: 220 43% 11%;
+    /* #111827 */
     --secondary-foreground: 0 0% 100%;
 
     /* Accent: Calming blue */
-    --accent: 205 87% 69%; /* #6BB7F5 */
+    --accent: 205 87% 69%;
+    /* #6BB7F5 */
     --accent-foreground: 222 47% 11%;
 
-    --muted: 213 27% 96%; /* #F7F9FC */
-    --muted-foreground: 215 16% 47%; /* #64748B */
+    --muted: 213 27% 96%;
+    /* #F7F9FC */
+    --muted-foreground: 215 16% 47%;
+    /* #64748B */
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Status colors */
-    --success: 142 71% 45%; /* #22C55E */
-    --warning: 38 92% 50%; /* #F59E0B */
-    --info: 217 91% 60%; /* #3B82F6 */
+    --success: 142 71% 45%;
+    /* #22C55E */
+    --warning: 38 92% 50%;
+    /* #F59E0B */
+    --info: 217 91% 60%;
+    /* #3B82F6 */
 
-    --border: 220 13% 91%; /* #E5E7EB */
+    --border: 220 13% 91%;
+    /* #E5E7EB */
     --input: 220 13% 91%;
     --ring: 205 87% 69%;
 
@@ -119,4 +132,40 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes breathe {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.5);
+    opacity: 0.4;
+  }
+}
+
+@keyframes text-breathe {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+.animate-breathe {
+  animation: breathe 8s infinite ease-in-out;
+}
+
+.animate-text-breathe {
+  animation: text-breathe 8s infinite ease-in-out;
 }

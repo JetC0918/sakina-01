@@ -109,6 +109,12 @@ export function SakinaProvider({ children }: { children: React.ReactNode }) {
         ...prev.nudge,
         active: false,
       },
+      bioStatus: {
+        ...prev.bioStatus,
+        currentLoad: 35,
+        status: 'optimal',
+        lastUpdated: new Date().toISOString(),
+      },
     }));
   }, [setState]);
 
