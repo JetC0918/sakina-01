@@ -13,7 +13,7 @@ const buttonVariants = cva(
         destructive: "rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90",
         outline: "rounded-full border border-border bg-transparent hover:bg-muted hover:text-foreground",
         secondary: "rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-md hover:shadow-lg",
-        ghost: "rounded-md hover:bg-muted hover:text-foreground",
+        ghost: "rounded-full hover:bg-muted hover:text-foreground",
         link: "text-accent underline-offset-4 hover:underline",
         // Sakina special variants
         hero: "rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:shadow-xl text-base font-semibold",

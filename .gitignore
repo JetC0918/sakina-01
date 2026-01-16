@@ -18,6 +18,7 @@ dist-ssr
 .env.*
 !.env.example
 !.env.sample
+skills/*
 
 # Scraper job build artifacts and config
 jobs/dist/
@@ -234,3 +235,8 @@ prd.txt
 dca4d24afc9f4f1f825b4530f100c8ca.jpg
 backend/codiolive.db
 .env
+.ace-tool/
+.claude/ 
+*.md 
+*.txt
+*.json
