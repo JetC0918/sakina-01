@@ -237,7 +237,8 @@ backend/codiolive.db
 .env
 .ace-tool/
 .claude/ 
-*.md 
+skills/
+
 *.txt
+*.md
 *.json
-skills
