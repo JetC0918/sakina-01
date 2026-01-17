@@ -239,6 +239,8 @@ backend/codiolive.db
 .claude/ 
 skills/
 
-*.txt
+
 *.md
 design.json
+pr (2).txt
+prd (2).txt
