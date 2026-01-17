@@ -24,7 +24,6 @@ import {
     type UserProfile,
 } from '@/lib/api-client';
 import { toast } from '@/hooks/use-toast';
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // Journal Hook
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -35,6 +34,13 @@ export function useJournalEntries(mood?: string) {
         queryFn: () => getJournalEntries({ mood }),
         staleTime: 2 * 60 * 1000, // 2 minutes
         retry: 2,
+        refetchInterval: (query) => {
+            const data = query.state.data;
+            if (!data) return false;
+            // Check if any entry is pending analysis
+            const hasPendingAnalysis = data.some((entry) => !entry.analyzed_at);
+            return hasPendingAnalysis ? 2000 : false;
+        },
     });
 }
 
