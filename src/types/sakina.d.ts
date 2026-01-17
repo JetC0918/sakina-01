@@ -11,6 +11,7 @@ export interface UserPreferences {
     nudges: boolean;
     dailyReminder: boolean;
   };
+  subscription: 'free' | 'premium';
 }
 
 export interface JournalEntry {
@@ -34,9 +35,19 @@ export interface NudgeState {
   context: string; // e.g. "You've been typing fast"
 }
 
+export interface InterventionLog {
+  id: string;
+  type: 'breathing' | 'grounding' | 'pause';
+  subType?: string; // e.g. 'box-breathing', '4-7-8'
+  timestamp: string; // ISO String
+  durationSeconds: number;
+  completed: boolean;
+}
+
 export interface SakinaStore {
   preferences: UserPreferences;
   journalHistory: JournalEntry[];
+  interventionHistory: InterventionLog[];
   bioStatus: BioDataPoint;
   nudge: NudgeState;
 }

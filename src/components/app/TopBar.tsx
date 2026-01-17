@@ -13,7 +13,7 @@ export function TopBar({ onOpenPanel }: TopBarProps) {
   const { bioStatus, nudge } = state;
 
   return (
-    <header className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+    <header className="xl:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex items-center justify-between h-14 px-4">
         <div className="flex items-center gap-2">
           <SakinaLogo className="w-8 h-8" />

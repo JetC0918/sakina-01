@@ -34,7 +34,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden md:flex flex-col border-r border-border bg-sidebar h-full transition-all duration-300",
+        "hidden md:flex flex-col border-r border-border bg-sidebar h-screen sticky top-0 transition-all duration-300",
         "w-full"
       )}
     >

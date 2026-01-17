@@ -2,14 +2,17 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useSakina } from '@/hooks/useSakina';
-import { BreathingModal } from './BreathingModal';
+import { InterventionDialog } from '@/components/interventions/InterventionDialog';
+import { interventions } from '@/data/interventions';
 import { Activity, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { InterventionDef } from '@/data/interventions';
 
 export function BioFeedbackPanel() {
   const { state, actions } = useSakina();
   const { bioStatus, nudge } = state;
-  const [showBreathingModal, setShowBreathingModal] = React.useState(false);
+  const [selectedIntervention, setSelectedIntervention] = React.useState<InterventionDef | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
 
   const getStatusColor = () => {
     switch (bioStatus.status) {
@@ -42,19 +45,37 @@ export function BioFeedbackPanel() {
   };
 
   const handleStartExercise = () => {
-    setShowBreathingModal(true);
+    // Default to Box Breathing if type matches or is generic
+    // If grounding, pick grounding
+    let intervention = interventions[0]; // Box Breathing default
+    
+    if (nudge.type === 'grounding') {
+      const found = interventions.find(i => i.type === 'grounding');
+      if (found) intervention = found;
+    }
+    
+    setSelectedIntervention(intervention);
+    setIsDialogOpen(true);
   };
 
-  const handleCompleteExercise = () => {
-    setShowBreathingModal(false);
-    actions.dismissNudge();
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    // If they were doing a nudge, dismiss it on close (or maybe we should only dismiss on complete? 
+    // The previous code dismissed on complete. 
+    // But InterventionDialog handles logging. 
+    // We should probably dismiss the nudge if the dialog closes, assuming they did something or ignored it?
+    // Actually, let's keep it simple: if the dialog closes, we presume they are done with the interaction.)
+    if (nudge.active) {
+       actions.dismissNudge();
+    }
   };
 
   return (
     <>
-      <BreathingModal
-        isOpen={showBreathingModal}
-        onClose={handleCompleteExercise}
+      <InterventionDialog
+        isOpen={isDialogOpen}
+        onClose={handleCloseDialog}
+        intervention={selectedIntervention}
       />
 
       <div className="flex flex-col gap-4 h-full">

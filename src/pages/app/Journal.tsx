@@ -6,6 +6,7 @@ import { MOOD_CONFIG, ALL_MOODS } from '@/lib/mood-utils';
 import { JournalForm } from '@/components/app/journal/JournalForm';
 import { JournalList } from '@/components/app/journal/JournalList';
 import { Button } from '@/components/ui/button';
+import { PageTransition } from '@/components/ui/PageTransition';
 import {
   Sheet,
   SheetContent,
@@ -47,7 +48,8 @@ export default function Journal() {
   }, [state.journalHistory]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] pb-24 md:pb-0 max-w-4xl mx-auto">
+    <PageTransition>
+      <div className="flex flex-col h-[calc(100vh-4rem)] pb-24 md:pb-0 max-w-4xl mx-auto">
       {/* Header & Stats */}
       <div className="flex flex-col gap-2 mb-6">
         <h1 className="text-3xl font-bold text-foreground">Journal</h1>
@@ -58,8 +60,8 @@ export default function Journal() {
         </p>
       </div>
 
-      {/* Mood Filter */}
-      <div className="mb-6">
+      {/* Mood Filter & New Entry Button */}
+      <div className="flex items-center justify-between mb-6">
         <Select
           value={filterMood}
           onValueChange={(value) => setFilterMood(value as Mood | 'all')}
@@ -76,22 +78,21 @@ export default function Journal() {
             ))}
           </SelectContent>
         </Select>
+
+        <Button
+          onClick={() => setSheetOpen(true)}
+          className="gap-2"
+          aria-label="Create new journal entry"
+        >
+          <Plus className="h-4 w-4" />
+          New Entry
+        </Button>
       </div>
 
       {/* List Area - Flex-1 to fill remaining space */}
       <div className="flex-1 min-h-0">
         <JournalList history={state.journalHistory} filterMood={filterMood} />
       </div>
-
-      {/* FAB - Fixed Bottom Right (adjusted for mobile nav) */}
-      <Button
-        onClick={() => setSheetOpen(true)}
-        className="fixed bottom-20 right-6 h-14 w-14 rounded-full shadow-lg z-50 md:bottom-8 md:right-8"
-        size="icon"
-        aria-label="Create new journal entry"
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
 
       {/* Sheet Modal */}
       <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
@@ -109,5 +110,6 @@ export default function Journal() {
         </SheetContent>
       </Sheet>
     </div>
+    </PageTransition>
   );
 }
