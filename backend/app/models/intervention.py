@@ -1,7 +1,7 @@
 """
 InterventionLog model - tracks completed wellness exercises.
 """
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, Enum
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Boolean, Enum, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -26,7 +26,7 @@ class InterventionLog(Base):
     id = Column(
         UUID(as_uuid=True), 
         primary_key=True, 
-        server_default="gen_random_uuid()"
+        server_default=text("gen_random_uuid()")
     )
     
     # Foreign key to user
@@ -47,7 +47,7 @@ class InterventionLog(Base):
     completed = Column(Boolean, default=False)
     
     # Timestamps
-    created_at = Column(DateTime, server_default="now()")
+    created_at = Column(DateTime, server_default=text("now()"))
     
     # Relationships
     user = relationship("User", back_populates="intervention_logs")

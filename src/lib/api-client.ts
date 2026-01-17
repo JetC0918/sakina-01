@@ -81,11 +81,11 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getAuthToken();
-  
+
   if (!token) {
     throw new Error('Not authenticated');
   }
-  
+
   const response = await fetch(`${API_BASE}${endpoint}`, {
     ...options,
     headers: {
@@ -94,12 +94,12 @@ async function apiRequest<T>(
       ...options.headers,
     },
   });
-  
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
     throw new Error(error.detail || `API Error: ${response.status}`);
   }
-  
+
   return response.json();
 }
 
@@ -139,7 +139,7 @@ export async function getJournalEntries(
   if (mood && mood !== 'all') {
     params.set('mood', mood);
   }
-  
+
   return apiRequest<JournalEntryResponse[]>(`/api/journal/?${params}`);
 }
 
@@ -274,4 +274,43 @@ export async function checkApiHealth(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// User API
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export interface UserOnboardingRequest {
+  name?: string;
+  age_group?: string;
+  gender?: string;
+  occupation?: string;
+  wearable_connected?: boolean;
+}
+
+export interface UserProfile extends UserOnboardingRequest {
+  id: string;
+  email: string;
+  locale: string;
+  theme: string;
+  subscription: string;
+  nudge_enabled: boolean;
+  daily_reminder: boolean;
+}
+
+/**
+ * Get user profile
+ */
+export async function getUserProfile(): Promise<UserProfile> {
+  return apiRequest<UserProfile>('/api/user/profile');
+}
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(data: UserOnboardingRequest): Promise<void> {
+  await apiRequest('/api/user/profile', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
 }

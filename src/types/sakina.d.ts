@@ -4,6 +4,17 @@ export type Mood = 'stressed' | 'anxious' | 'tired' | 'okay' | 'calm' | 'energiz
 export type Theme = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'ar';
 
+export interface UserProfile {
+  id: string;
+  email: string;
+  name?: string;
+  ageGroup?: string;
+  gender?: string;
+  occupation?: string;
+  wearableConnected?: boolean;
+  preferences: UserPreferences;
+}
+
 export interface UserPreferences {
   theme: Theme;
   language: Language;

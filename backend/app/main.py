@@ -10,18 +10,18 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import journal, nudge, insights, intervention
+from app.routers import journal, nudge, insights, intervention, user
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Application lifespan handler.
-    Creates database tables on startup (for development).
+    Tables are created via Supabase migrations, not SQLAlchemy.
     """
-    # Startup: Create tables if they don't exist
-    # Note: In production, use Alembic migrations instead
-    Base.metadata.create_all(bind=engine)
+    # Startup: Tables already exist from Supabase migration
+    # Uncomment below line only for local SQLite development:
+    # Base.metadata.create_all(bind=engine)
     yield
     # Shutdown: cleanup if needed
 
@@ -48,15 +48,24 @@ app = FastAPI(
 # CORS middleware for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        settings.FRONTEND_URL,
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ],
+    allow_origins=["*"],  # Temporarily allow all for debugging
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+import traceback
+from fastapi import Request
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_msg = f"Global Exception: {str(exc)}\n{traceback.format_exc()}"
+    print(error_msg)  # Print to console for command_status to capture
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal Server Error", "error": str(exc), "trace": traceback.format_exc()},
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -85,6 +94,12 @@ app.include_router(
     intervention.router, 
     prefix="/api/intervention", 
     tags=["Intervention"]
+)
+
+app.include_router(
+    user.router, 
+    prefix="/api/user", 
+    tags=["User"]
 )
 
 

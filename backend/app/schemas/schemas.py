@@ -138,10 +138,25 @@ class UserPreferencesUpdate(BaseModel):
     daily_reminder: Optional[bool] = None
 
 
+class UserOnboardingRequest(BaseModel):
+    """Request to update user profile during onboarding."""
+    name: Optional[str] = Field(None, max_length=100)
+    age_group: Optional[str] = None
+    gender: Optional[str] = None
+    occupation: Optional[str] = None
+    wearable_connected: bool = False
+
+
 class UserResponse(BaseModel):
     """Response schema for user profile."""
     id: UUID
     email: str
+    name: Optional[str] = None
+    age_group: Optional[str] = None
+    gender: Optional[str] = None
+    occupation: Optional[str] = None
+    wearable_connected: bool = False
+    
     locale: str
     theme: str
     subscription: str

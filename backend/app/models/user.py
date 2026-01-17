@@ -2,7 +2,7 @@
 User model - syncs with Supabase Auth.
 Stores user preferences and settings.
 """
-from sqlalchemy import Column, String, DateTime, Boolean, Enum
+from sqlalchemy import Column, String, DateTime, Boolean, Enum, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -26,6 +26,13 @@ class User(Base):
     id = Column(UUID(as_uuid=True), primary_key=True)
     email = Column(String(255), unique=True, nullable=False)
     
+    # Onboarding Data
+    name = Column(String(100), nullable=True)
+    age_group = Column(String(20), nullable=True)
+    gender = Column(String(20), nullable=True)
+    occupation = Column(String(100), nullable=True)
+    wearable_connected = Column(Boolean, default=False)
+
     # Preferences
     locale = Column(String(5), default="en")  # en, ar
     theme = Column(String(10), default="light")  # light, dark, system
@@ -34,8 +41,8 @@ class User(Base):
     daily_reminder = Column(Boolean, default=False)
     
     # Timestamps
-    created_at = Column(DateTime, server_default="now()")
-    updated_at = Column(DateTime, server_default="now()", onupdate="now()")
+    created_at = Column(DateTime, server_default=text("now()"))
+    updated_at = Column(DateTime, server_default=text("now()"))
     
     # Relationships
     journal_entries = relationship(

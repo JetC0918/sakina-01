@@ -1,7 +1,7 @@
 """
 JournalEntry model - stores user journal entries with AI analysis.
 """
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text, Enum
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text, Enum, text
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -35,7 +35,7 @@ class JournalEntry(Base):
     id = Column(
         UUID(as_uuid=True), 
         primary_key=True, 
-        server_default="gen_random_uuid()"
+        server_default=text("gen_random_uuid()")
     )
     
     # Foreign key to user
@@ -60,7 +60,7 @@ class JournalEntry(Base):
     analyzed_at = Column(DateTime, nullable=True)
     
     # Timestamps
-    created_at = Column(DateTime, server_default="now()", index=True)
+    created_at = Column(DateTime, server_default=text("now()"), index=True)
     
     # Relationships
     user = relationship("User", back_populates="journal_entries")

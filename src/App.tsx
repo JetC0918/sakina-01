@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SakinaProvider } from "@/context/SakinaContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import RequireProfile from '@/components/auth/RequireProfile';
 import { AppLayout } from "@/layouts/AppLayout";
 
 // Lazy-loaded pages for code splitting
@@ -18,6 +19,7 @@ const Journal = lazy(() => import("./pages/app/Journal"));
 const Interventions = lazy(() => import("./pages/app/Interventions"));
 const Insights = lazy(() => import("./pages/app/Insights"));
 const Settings = lazy(() => import("./pages/app/Settings"));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage"));
 
 const queryClient = new QueryClient();
 
@@ -40,13 +42,23 @@ const App = () => (
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <ProtectedRoute>
+                      <OnboardingPage />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* Protected App Shell */}
                 <Route
                   path="/app"
                   element={
                     <ProtectedRoute>
-                      <AppLayout />
+                      <RequireProfile> {/* Wrapped AppLayout with RequireProfile */}
+                        <AppLayout />
+                      </RequireProfile>
                     </ProtectedRoute>
                   }
                 >
