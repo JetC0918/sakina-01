@@ -40,7 +40,6 @@ const App = () => (
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
 
                 {/* Protected App Shell */}
                 <Route

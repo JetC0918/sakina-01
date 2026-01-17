@@ -18,8 +18,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
 
     if (!user) {
-        // Redirect to auth page with the current location for redirect after login
-        return <Navigate to="/auth" state={{ from: location }} replace />;
+        // Redirect to homepage - the auth modal will be triggered there
+        return <Navigate to="/" state={{ from: location, showAuth: true }} replace />;
     }
 
     return <>{children}</>;
