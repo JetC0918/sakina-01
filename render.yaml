@@ -39,7 +39,6 @@ services:
   - type: web
     name: sakina-app
     runtime: static
-    region: singapore
     plan: free
     buildCommand: npm install && npm run build
     staticPublishPath: dist
