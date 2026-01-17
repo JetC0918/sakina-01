@@ -47,11 +47,34 @@ app = FastAPI(
 )
 
 # CORS middleware for React frontend
+import logging
+
+logger = logging.getLogger("uvicorn")
+
+def _is_valid_origin(origin: str) -> bool:
+    is_local = origin.startswith(("http://localhost", "http://127.0.0.1"))
+    return is_local or origin.startswith("https://")
+
+origins = [
+    settings.FRONTEND_URL,
+    "http://localhost:5173",
+    "http://localhost:8080",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:8080",
+]
+
+if settings.CORS_ALLOWED_ORIGINS:
+    extra = [o.strip() for o in settings.CORS_ALLOWED_ORIGINS.split(",") if o.strip()]
+    origins.extend(extra)
+
+origins = [o for o in dict.fromkeys(origins) if _is_valid_origin(o)]
+logger.info(f"CORS allowed origins: {origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
