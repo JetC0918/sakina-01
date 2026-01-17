@@ -11,10 +11,11 @@ Sakina is an AI-powered wellness companion designed for young professionals in S
 - **Voice & Text Journaling** - Record voice notes or type free-form reflections to express your feelings
 - **Stress Signal Detection** - AI-powered analysis of tone, frequency, and patterns to detect rising stress
 - **Proactive AI Nudges** - Timely, warm interventions triggered based on detected emotional fatigue
-- **Micro-Interventions** - 1-3 minute breathing and grounding exercises tailored to your context
+- **Micro-Interventions** - 1-3 minute breathing and grounding exe  rcises tailored to your context
 - **Bio Load Tracking** - Visual representation of your emotional load with actionable insights
 - **Theme Support** - Light, dark, and system-adaptive themes
 - **Multi-Language** - English and Arabic (RTL) support
+- **Authentication** - Email/password and Google Sign-In via Supabase
 
 ## 🛠️ Tech Stack
 
@@ -28,6 +29,7 @@ This project is built with modern web technologies:
 | **Routing** | [React Router v6](https://reactrouter.com/) |
 | **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
 | **UI Components** | [shadcn/ui](https://ui.shadcn.com/) + [Radix UI](https://www.radix-ui.com/) |
+| **Authentication** | [Supabase](https://supabase.com/) |
 | **State Management** | React Context + Local Storage |
 | **Data Fetching** | [TanStack Query](https://tanstack.com/query) |
 | **Charts** | [Recharts](https://recharts.org/) |
@@ -38,28 +40,38 @@ This project is built with modern web technologies:
 ## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── app/              # App dashboard components (Sidebar, TopBar, BioFeedbackPanel)
-│   │   ├── insights/     # Insights page components
-│   │   └── journal/      # Journal page components
-│   ├── interventions/    # Intervention/Calm exercise components
-│   ├── landing/          # Landing page sections (Hero, Features, HowItWorks)
-│   └── ui/               # shadcn/ui component library
-├── context/              # React Context providers (SakinaContext)
-├── hooks/                # Custom React hooks
-├── layouts/              # App layout components
-├── lib/                  # Utility functions
-├── pages/
-│   ├── app/              # Authenticated app pages
-│   │   ├── Dashboard.tsx
-│   │   ├── Journal.tsx
-│   │   ├── Interventions.tsx
-│   │   ├── Insights.tsx
-│   │   └── Settings.tsx
-│   ├── Index.tsx         # Landing page
-│   └── NotFound.tsx
-└── types/                # TypeScript type definitions
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── app/              # App dashboard components (Sidebar, TopBar, BioFeedbackPanel)
+│   │   │   ├── insights/     # Insights page components
+│   │   │   └── journal/      # Journal page components
+│   │   ├── interventions/    # Intervention/Calm exercise components
+│   │   ├── landing/          # Landing page sections (Hero, Features, HowItWorks)
+│   │   ├── ui/               # shadcn/ui component library
+│   │   ├── AuthModal.tsx     # Authentication modal (Sign In/Sign Up)
+│   │   ├── ProtectedRoute.tsx
+│   │   └── SakinaLogo.tsx
+│   ├── context/
+│   │   ├── AuthContext.tsx   # Authentication state (Supabase)
+│   │   └── SakinaContext.tsx # App state (journal, interventions, settings)
+│   ├── hooks/                # Custom React hooks
+│   ├── layouts/              # App layout components
+│   ├── lib/                  # Utility functions
+│   ├── pages/
+│   │   ├── app/              # Authenticated app pages
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Journal.tsx
+│   │   │   ├── Interventions.tsx
+│   │   │   ├── Insights.tsx
+│   │   │   └── Settings.tsx
+│   │   ├── Index.tsx         # Landing page
+│   │   ├── Auth.tsx          # Auth page (fallback)
+│   │   └── NotFound.tsx
+│   └── types/                # TypeScript type definitions
+├── design.json               # Design tokens and component specifications
+├── package.json
+└── vite.config.ts
 ```
 
 ## 🚀 Getting Started
@@ -74,7 +86,7 @@ src/
 ```bash
 # Clone the repository
 git clone <YOUR_GIT_URL>
-cd design-build-blueprint
+cd design-build-blueprint/frontend
 
 # Install dependencies
 npm install
@@ -86,6 +98,8 @@ npm run dev
 The app will be available at `http://localhost:5173`
 
 ### Available Scripts
+
+Run these commands from the `frontend/` directory:
 
 | Command | Description |
 |---------|-------------|
