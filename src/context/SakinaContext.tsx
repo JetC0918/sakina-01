@@ -194,11 +194,11 @@ export function SakinaProvider({ children }: { children: React.ReactNode }) {
       root.classList.toggle('dark', isDark);
     };
 
-    // Force light mode if not authenticated
-    if (!isAuthenticated) {
-      applyTheme(false);
-      return;
-    }
+    // Force light mode if not authenticated - REMOVED
+    // if (!isAuthenticated) {
+    //   applyTheme(false);
+    //   return;
+    // }
 
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
