@@ -22,6 +22,7 @@ class InterventionLog(Base):
     Tracks user engagement with wellness exercises.
     """
     __tablename__ = "intervention_logs"
+    __table_args__ = {"schema": "public"}
     
     # Primary key
     id = Column(
@@ -33,7 +34,7 @@ class InterventionLog(Base):
     # Foreign key to user
     user_id = Column(
         UUID(as_uuid=True), 
-        ForeignKey("users.id", ondelete="CASCADE"), 
+        ForeignKey("public.users.id", ondelete="CASCADE"), 
         nullable=False,
         index=True
     )

@@ -30,6 +30,7 @@ class JournalEntry(Base):
     Analysis is populated asynchronously after entry creation.
     """
     __tablename__ = "journal_entries"
+    __table_args__ = {"schema": "public"}
     
     # Primary key
     id = Column(
@@ -41,7 +42,7 @@ class JournalEntry(Base):
     # Foreign key to user
     user_id = Column(
         UUID(as_uuid=True), 
-        ForeignKey("users.id", ondelete="CASCADE"), 
+        ForeignKey("public.users.id", ondelete="CASCADE"), 
         nullable=False,
         index=True
     )
