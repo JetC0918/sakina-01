@@ -102,7 +102,15 @@ async def get_journal_entries(
     
     # Optional mood filter
     if mood and mood != "all":
-        query = query.filter(JournalEntry.mood == MoodType(mood))
+        # Case-insensitive matching for MoodType
+        mood_enum = next((m for m in MoodType if m.value.lower() == mood.lower()), None)
+        
+        if mood_enum:
+            query = query.filter(JournalEntry.mood == mood_enum)
+        else:
+            # If invalid mood provided, return empty list (or raise 400)
+            # Returning empty list implies "no entries match this filter"
+            return []
     
     entries = query.order_by(desc(JournalEntry.created_at))\
         .offset(skip)\

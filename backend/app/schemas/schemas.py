@@ -1,7 +1,7 @@
 """
 Pydantic schemas for API request/response validation.
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Literal
 from datetime import datetime
 from uuid import UUID
@@ -11,9 +11,12 @@ from uuid import UUID
 # Type Definitions
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MoodLiteral = Literal["stressed", "anxious", "tired", "okay", "calm", "energized"]
+MoodLiteral = Literal[
+    "Stressed", "Anxious", "Tired", "Okay", "Calm", "Energized", 
+    "Grateful", "Focused", "Happy", "Exhausted", "Frustrated"
+]
 EntryTypeLiteral = Literal["text", "voice"]
-InterventionTypeLiteral = Literal["breathing", "grounding", "pause", "reflection"]
+InterventionTypeLiteral = Literal["Breathing", "Grounding", "Pause", "Reflection"]
 TrendLiteral = Literal["improving", "stable", "declining"]
 PriorityLiteral = Literal["low", "medium", "high"]
 
@@ -28,6 +31,13 @@ class JournalEntryCreate(BaseModel):
     mood: MoodLiteral
     entry_type: EntryTypeLiteral = "text"
 
+    @field_validator('mood', mode='before')
+    @classmethod
+    def validate_mood(cls, v):
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
+
 
 class JournalAnalysis(BaseModel):
     """AI analysis results for a journal entry."""
@@ -36,6 +46,13 @@ class JournalAnalysis(BaseModel):
     key_themes: List[str]
     suggested_intervention: Optional[InterventionTypeLiteral] = None
     supportive_message: str
+
+    @field_validator('suggested_intervention', mode='before')
+    @classmethod
+    def validate_intervention(cls, v):
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
 
 
 class JournalEntryResponse(BaseModel):
@@ -74,9 +91,16 @@ class NudgeDecision(BaseModel):
     """AI decision on whether to show a nudge."""
     should_nudge: bool
     message: str = ""
-    nudge_type: InterventionTypeLiteral = "breathing"
+    nudge_type: InterventionTypeLiteral = "Breathing"
     context: str = ""
     priority: PriorityLiteral = "medium"
+
+    @field_validator('nudge_type', mode='before')
+    @classmethod
+    def validate_nudge_type(cls, v):
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -106,6 +130,13 @@ class InterventionLogCreate(BaseModel):
     """Request schema for logging a completed intervention."""
     intervention_type: InterventionTypeLiteral
     subtype: Optional[str] = None
+
+    @field_validator('intervention_type', mode='before')
+    @classmethod
+    def validate_intervention_type(cls, v):
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
     trigger_reason: Optional[str] = None
     duration_seconds: int = Field(..., ge=0)
     completed: bool = False
@@ -176,6 +207,13 @@ class AnalyzeRequest(BaseModel):
     """Direct request to analyze text content."""
     content: str = Field(..., min_length=1, max_length=5000)
     mood: MoodLiteral
+
+    @field_validator('mood', mode='before')
+    @classmethod
+    def validate_mood(cls, v):
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
 
 
 class HealthResponse(BaseModel):

@@ -10,18 +10,23 @@ import enum
 
 class MoodType(str, enum.Enum):
     """Available mood options for journal entries."""
-    STRESSED = "stressed"
-    ANXIOUS = "anxious"
-    TIRED = "tired"
-    OKAY = "okay"
-    CALM = "calm"
-    ENERGIZED = "energized"
+    Stressed = "Stressed"
+    Anxious = "Anxious"
+    Tired = "Tired"
+    Okay = "Okay"
+    Calm = "Calm"
+    Energized = "Energized"
+    Grateful = "Grateful"
+    Focused = "Focused"
+    Happy = "Happy"
+    Exhausted = "Exhausted"
+    Frustrated = "Frustrated"
 
 
 class EntryType(str, enum.Enum):
     """Type of journal entry input."""
-    TEXT = "text"
-    VOICE = "voice"
+    text = "text"
+    voice = "voice"
 
 
 class JournalEntry(Base):
@@ -48,7 +53,7 @@ class JournalEntry(Base):
     )
     
     # Entry content
-    entry_type = Column(Enum(EntryType), default=EntryType.TEXT)
+    entry_type = Column(Enum(EntryType), default=EntryType.text)
     content = Column(Text, nullable=False)
     mood = Column(Enum(MoodType), nullable=False)
     

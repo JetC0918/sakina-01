@@ -100,7 +100,7 @@ export default function Insights() {
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2">
                   <Brain className="h-5 w-5" />
-                  AI Weekly Summary
+                  AI {timeRange === '7' ? 'Weekly' : 'Monthly'} Summary
                 </CardTitle>
                 {isLoading ? (
                   <Skeleton className="h-6 w-20" />
@@ -155,8 +155,8 @@ export default function Insights() {
                 <Skeleton className="h-8 w-12" />
               ) : (
                 <p className={`text-3xl font-bold ${(insights?.avg_stress_score || 0) > 70 ? 'text-red-500' :
-                    (insights?.avg_stress_score || 0) > 40 ? 'text-yellow-500' :
-                      'text-green-500'
+                  (insights?.avg_stress_score || 0) > 40 ? 'text-yellow-500' :
+                    'text-green-500'
                   }`}>
                   {insights?.avg_stress_score?.toFixed(0) || stats?.avg_stress_score?.toFixed(0) || '--'}
                 </p>
@@ -257,9 +257,9 @@ export default function Insights() {
                         <div className="h-2 rounded-full bg-muted overflow-hidden">
                           <div
                             className={`h-full rounded-full ${mood === 'calm' || mood === 'energized' ? 'bg-green-500' :
-                                mood === 'okay' ? 'bg-blue-500' :
-                                  mood === 'tired' ? 'bg-yellow-500' :
-                                    'bg-red-500'
+                              mood === 'okay' ? 'bg-blue-500' :
+                                mood === 'tired' ? 'bg-yellow-500' :
+                                  'bg-red-500'
                               }`}
                             style={{ width: `${percentage}%` }}
                           />

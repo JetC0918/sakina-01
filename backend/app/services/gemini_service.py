@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 # Initialize model
-model = genai.GenerativeModel("gemini-1.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -60,7 +60,7 @@ decide if they need a gentle intervention nudge.
 {{"should_nudge": <true|false>, "message": "<warm nudge message if true, empty if false>", "nudge_type": "<breathing|grounding|reflection>", "context": "<brief reason for nudge>", "priority": "<low|medium|high>"}}
 """
 
-INSIGHTS_PROMPT = """You are Sakina, analyzing a user's wellness patterns over the past week.
+INSIGHTS_PROMPT = """You are Sakina, analyzing a user's wellness patterns over the past {period_name}.
 
 **Journal Entries Summary:**
 {entries_summary}
@@ -68,10 +68,10 @@ INSIGHTS_PROMPT = """You are Sakina, analyzing a user's wellness patterns over t
 **Entry Count:** {entry_count}
 **Average Stress Score:** {avg_stress}
 
-**Task:** Provide a supportive weekly summary.
+**Task:** Provide a supportive {period_name} summary.
 
 **Respond ONLY with valid JSON:**
-{{"trend": "<improving|stable|declining>", "frequent_themes": ["<theme1>", "<theme2>"], "recommendation": "<one actionable recommendation>", "weekly_summary": "<2-3 sentences summarizing their week warmly>"}}
+{{"trend": "<improving|stable|declining>", "frequent_themes": ["<theme1>", "<theme2>"], "recommendation": "<one actionable recommendation>", "weekly_summary": "<2-3 sentences summarizing their {period_name} warmly>"}}
 """
 
 
@@ -165,21 +165,25 @@ async def generate_nudge_decision(
 async def generate_weekly_insights(
     entries_summary: str,
     entry_count: int,
-    avg_stress: float
+    avg_stress: float,
+    days: int = 7
 ) -> dict:
     """
-    Generate weekly wellness insights from journal entries.
+    Generate wellness insights from journal entries for a given period.
     
     Args:
-        entries_summary: Summary of journal entries for the week
+        entries_summary: Summary of journal entries for the period
         entry_count: Number of entries in the period
         avg_stress: Average stress score
+        days: Number of days in the period
         
     Returns:
-        Weekly pattern analysis with trend, themes, recommendation, summary
+        Pattern analysis with trend, themes, recommendation, summary
     """
     try:
+        period_name = "month" if days > 7 else "week"
         prompt = INSIGHTS_PROMPT.format(
+            period_name=period_name,
             entries_summary=entries_summary,
             entry_count=entry_count,
             avg_stress=round(avg_stress, 1)
@@ -192,17 +196,18 @@ async def generate_weekly_insights(
         result.setdefault("trend", "stable")
         result.setdefault("frequent_themes", [])
         result.setdefault("recommendation", "Keep journaling regularly to track your wellness.")
-        result.setdefault("weekly_summary", "Thank you for staying connected with your emotions this week.")
+        result.setdefault("weekly_summary", f"Thank you for staying connected with your emotions this {period_name}.")
         
         return result
         
     except Exception as e:
         logger.error(f"Gemini insights error: {e}")
+        period_name = "month" if days > 7 else "week"
         return {
             "trend": "stable",
             "frequent_themes": [],
             "recommendation": "Keep journaling regularly to track your wellness.",
-            "weekly_summary": "Thank you for staying connected with your emotions."
+            "weekly_summary": f"Thank you for staying connected with your emotions this {period_name}."
         }
 
 

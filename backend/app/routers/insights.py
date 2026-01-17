@@ -17,10 +17,11 @@ from app.services.gemini_service import generate_weekly_insights
 router = APIRouter()
 
 
-def _build_weekly_summary(entries: list) -> str:
-    """Build a summary of entries for weekly insights."""
+def _build_period_summary(entries: list, days: int) -> str:
+    """Build a summary of entries for the given period insights."""
+    period_name = "month" if days > 7 else "week"
     if not entries:
-        return "No journal entries this week."
+        return f"No journal entries this {period_name}."
     
     summary_parts = []
     for entry in entries:
@@ -40,9 +41,9 @@ async def get_weekly_insights(
     user_id: str = Depends(get_current_user_id)
 ):
     """
-    Get AI-generated weekly wellness insights.
+    Get AI-generated wellness insights for a specific period.
     
-    Analyzes journal entries from the past week to identify:
+    Analyzes journal entries from the past N days to identify:
     - Stress trend (improving, stable, declining)
     - Common themes
     - Personalized recommendations
@@ -61,21 +62,22 @@ async def get_weekly_insights(
     entry_count = len(entries)
     
     # If no entries, return default response
+    period_name = "month" if request.days > 7 else "week"
     if entry_count == 0:
         return StressPattern(
             trend="stable",
             avg_stress_score=0,
             frequent_themes=[],
             recommendation="Start journaling to track your wellness patterns.",
-            weekly_summary="No journal entries yet this week. Take a moment to check in with yourself.",
+            weekly_summary=f"No journal entries yet this {period_name}. Take a moment to check in with yourself.",
             entry_count=0
         )
     
     # Build summary for AI
-    entries_summary = _build_weekly_summary(entries)
+    entries_summary = _build_period_summary(entries, request.days)
     
     # Generate insights with AI
-    result = await generate_weekly_insights(entries_summary, entry_count, avg_stress)
+    result = await generate_weekly_insights(entries_summary, entry_count, avg_stress, days=request.days)
     
     return StressPattern(
         trend=result["trend"],

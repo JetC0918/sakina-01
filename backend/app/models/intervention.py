@@ -10,10 +10,10 @@ import enum
 
 class InterventionType(str, enum.Enum):
     """Types of wellness interventions."""
-    BREATHING = "breathing"
-    GROUNDING = "grounding"
-    PAUSE = "pause"
-    REFLECTION = "reflection"
+    Breathing = "Breathing"
+    Grounding = "Grounding"
+    Pause = "Pause"
+    Reflection = "Reflection"
 
 
 class InterventionLog(Base):

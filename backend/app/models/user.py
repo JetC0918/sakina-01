@@ -11,8 +11,8 @@ import enum
 
 class SubscriptionTier(str, enum.Enum):
     """User subscription levels."""
-    FREE = "free"
-    PREMIUM = "premium"
+    free = "free"
+    premium = "premium"
 
 
 class User(Base):
@@ -38,7 +38,7 @@ class User(Base):
     # Preferences
     locale = Column(String(5), default="en")  # en, ar
     theme = Column(String(10), default="light")  # light, dark, system
-    subscription = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE)
+    subscription = Column(Enum(SubscriptionTier), default=SubscriptionTier.free)
     nudge_enabled = Column(Boolean, default=True)
     daily_reminder = Column(Boolean, default=False)
     
