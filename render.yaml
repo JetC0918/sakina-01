@@ -1,0 +1,63 @@
+# Render Blueprint - Sakina AI Wellness App
+# https://render.com/docs/blueprint-spec
+
+services:
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # FastAPI Backend
+  # ═══════════════════════════════════════════════════════════════════════════════
+  - type: web
+    name: sakina-api
+    runtime: python
+    region: singapore  # Change based on your target audience
+    plan: free  # Use 'starter' for production ($7/mo)
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # Supabase Configuration
+      - key: SUPABASE_URL
+        sync: false  # Set manually in Render dashboard
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      # Database (Supabase PostgreSQL connection string)
+      - key: DATABASE_URL
+        sync: false
+      # Gemini AI API Key
+      - key: GEMINI_API_KEY
+        sync: false
+      # CORS - Frontend URL (will be set after frontend deploys)
+      - key: FRONTEND_URL
+        sync: false
+      # Python optimization
+      - key: PYTHONUNBUFFERED
+        value: "1"
+
+  # ═══════════════════════════════════════════════════════════════════════════════
+  # Vite/React Frontend (Static Site)
+  # ═══════════════════════════════════════════════════════════════════════════════
+  - type: web
+    name: sakina-app
+    runtime: static
+    region: singapore
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+    routes:
+      # SPA routing - serve index.html for all routes
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      # Supabase (for frontend auth)
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      # Backend API URL (set to sakina-api URL after it deploys)
+      - key: VITE_API_URL
+        sync: false

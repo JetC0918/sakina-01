@@ -8,7 +8,7 @@ from uuid import UUID
 from datetime import datetime
 from typing import List
 
-from app.database import get_db
+from app.database import get_db, SessionLocal
 from app.auth import get_current_user_id
 from app.models.journal import JournalEntry, MoodType, EntryType
 from app.schemas.schemas import (
@@ -22,28 +22,31 @@ from app.services.gemini_service import analyze_journal_entry
 router = APIRouter()
 
 
-async def _analyze_and_update_entry(entry_id: UUID, db: Session):
+async def _analyze_and_update_entry(entry_id: UUID):
     """
     Background task to analyze journal entry with AI and update the record.
     """
     try:
-        entry = db.query(JournalEntry).filter(JournalEntry.id == entry_id).first()
-        if not entry:
-            return
+        db = SessionLocal()
+        try:
+            entry = db.query(JournalEntry).filter(JournalEntry.id == entry_id).first()
+            if not entry:
+                return
         
-        # Run AI analysis
-        analysis = await analyze_journal_entry(entry.content, entry.mood.value)
+            # Run AI analysis
+            analysis = await analyze_journal_entry(entry.content, entry.mood.value)
         
-        # Update entry with analysis results
-        entry.stress_score = analysis["stress_score"]
-        entry.emotional_tone = analysis["emotional_tone"]
-        entry.key_themes = analysis["key_themes"]
-        entry.suggested_intervention = analysis["suggested_intervention"]
-        entry.supportive_message = analysis["supportive_message"]
-        entry.analyzed_at = datetime.utcnow()
+            # Update entry with analysis results
+            entry.stress_score = analysis["stress_score"]
+            entry.emotional_tone = analysis["emotional_tone"]
+            entry.key_themes = analysis["key_themes"]
+            entry.suggested_intervention = analysis["suggested_intervention"]
+            entry.supportive_message = analysis["supportive_message"]
+            entry.analyzed_at = datetime.utcnow()
         
-        db.commit()
-        
+            db.commit()
+        finally:
+            db.close()
     except Exception as e:
         # Log error but don't fail - analysis is non-critical
         print(f"Analysis background task error: {e}")
@@ -75,7 +78,7 @@ async def create_journal_entry(
     db.refresh(db_entry)
     
     # Trigger AI analysis in background (non-blocking)
-    background_tasks.add_task(_analyze_and_update_entry, db_entry.id, db)
+    background_tasks.add_task(_analyze_and_update_entry, db_entry.id)
     
     return db_entry
 

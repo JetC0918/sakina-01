@@ -13,6 +13,7 @@ class InterventionType(str, enum.Enum):
     BREATHING = "breathing"
     GROUNDING = "grounding"
     PAUSE = "pause"
+    REFLECTION = "reflection"
 
 
 class InterventionLog(Base):

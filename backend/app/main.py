@@ -10,7 +10,8 @@ from contextlib import asynccontextmanager
 
 from app.config import settings
 from app.database import engine, Base
-from app.routers import journal, nudge, insights, intervention, user
+from app.database import engine, Base
+from app.routers import journal, nudge, insights, intervention, user, dashboard
 
 
 @asynccontextmanager
@@ -48,7 +49,7 @@ app = FastAPI(
 # CORS middleware for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Temporarily allow all for debugging
+    allow_origins=[settings.FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -101,6 +102,29 @@ app.include_router(
     prefix="/api/user", 
     tags=["User"]
 )
+
+app.include_router(
+    dashboard.router,
+    prefix="/api/dashboard",
+    tags=["Dashboard"]
+)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Middleware
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.middleware("http")
+async def add_cache_headers(request: Request, call_next):
+    response = await call_next(request)
+    
+    # Cache static dashboard data for 60 seconds (client-side)
+    if request.url.path in ["/api/insights/stats", "/api/insights/streak", "/api/dashboard/summary"]:
+        # Only cache successful GET requests
+        if request.method == "GET" and response.status_code == 200:
+            response.headers["Cache-Control"] = "private, max-age=60"
+    
+    return response
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

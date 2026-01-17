@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { InterventionDialog } from '@/components/interventions/InterventionDialog';
+// Removed direct import: import { InterventionDialog } from '@/components/interventions/InterventionDialog';
 import { interventions, InterventionDef } from '@/data/interventions';
 import { PageTransition } from '@/components/ui/PageTransition';
 import {
@@ -15,6 +15,10 @@ import type { Mood } from '@/types/sakina';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
 import { Activity, Brain, Flame, TrendingUp, Wind } from 'lucide-react';
+
+const InterventionDialog = lazy(() =>
+  import('@/components/interventions/InterventionDialog').then(m => ({ default: m.InterventionDialog }))
+);
 
 export default function Dashboard() {
   const [selectedIntervention, setSelectedIntervention] = useState<InterventionDef | null>(null);
@@ -111,8 +115,8 @@ export default function Dashboard() {
                     Sakina noticed something
                   </CardTitle>
                   <span className={`text-xs px-2 py-1 rounded ${nudge.priority === 'high' ? 'bg-red-100 text-red-700' :
-                      nudge.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                    nudge.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
                     }`}>
                     {nudge.priority} priority
                   </span>
@@ -175,8 +179,8 @@ export default function Dashboard() {
                   <Skeleton className="h-8 w-12" />
                 ) : (
                   <p className={`text-2xl font-bold ${(stats?.avg_stress_score || 0) > 70 ? 'text-red-500' :
-                      (stats?.avg_stress_score || 0) > 40 ? 'text-yellow-500' :
-                        'text-green-500'
+                    (stats?.avg_stress_score || 0) > 40 ? 'text-yellow-500' :
+                      'text-green-500'
                     }`}>
                     {stats?.avg_stress_score?.toFixed(0) || '--'}
                   </p>
@@ -264,8 +268,8 @@ export default function Dashboard() {
                           {entry.mood}
                           {entry.stress_score !== null && entry.stress_score !== undefined && (
                             <span className={`text-xs ml-2 px-1.5 py-0.5 rounded ${entry.stress_score > 70 ? 'bg-red-100 text-red-600' :
-                                entry.stress_score > 40 ? 'bg-yellow-100 text-yellow-600' :
-                                  'bg-green-100 text-green-600'
+                              entry.stress_score > 40 ? 'bg-yellow-100 text-yellow-600' :
+                                'bg-green-100 text-green-600'
                               }`}>
                               {entry.stress_score}
                             </span>

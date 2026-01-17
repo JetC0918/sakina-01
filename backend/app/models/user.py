@@ -21,6 +21,8 @@ class User(Base):
     The id comes from Supabase Auth (auth.users).
     """
     __tablename__ = "users"
+    __table_args__ = {"schema": "public"}
+    
     
     # Primary key from Supabase Auth
     id = Column(UUID(as_uuid=True), primary_key=True)

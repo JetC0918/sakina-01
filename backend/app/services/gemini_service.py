@@ -3,6 +3,7 @@ Gemini AI Service - handles all interactions with Google's Gemini API.
 """
 import google.generativeai as genai
 import json
+import asyncio
 import logging
 from typing import Optional
 from app.config import settings
@@ -91,7 +92,7 @@ async def analyze_journal_entry(content: str, mood: str) -> dict:
     """
     try:
         prompt = ANALYSIS_PROMPT.format(content=content, mood=mood)
-        response = model.generate_content(prompt)
+        response = await asyncio.to_thread(model.generate_content, prompt)
         
         # Parse JSON from response
         result = _parse_json_response(response.text)
@@ -137,7 +138,7 @@ async def generate_nudge_decision(
     try:
         last_nudge = last_nudge_time or "Never"
         prompt = NUDGE_PROMPT.format(summary=entries_summary, last_nudge=last_nudge)
-        response = model.generate_content(prompt)
+        response = await asyncio.to_thread(model.generate_content, prompt)
         
         result = _parse_json_response(response.text)
         
@@ -183,7 +184,7 @@ async def generate_weekly_insights(
             entry_count=entry_count,
             avg_stress=round(avg_stress, 1)
         )
-        response = model.generate_content(prompt)
+        response = await asyncio.to_thread(model.generate_content, prompt)
         
         result = _parse_json_response(response.text)
         

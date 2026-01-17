@@ -33,7 +33,7 @@ export function useJournalEntries(mood?: string) {
     return useQuery({
         queryKey: ['journal-entries', mood],
         queryFn: () => getJournalEntries({ mood }),
-        staleTime: 30 * 1000, // 30 seconds
+        staleTime: 2 * 60 * 1000, // 2 minutes
         retry: 2,
     });
 }
@@ -93,7 +93,7 @@ export function useNudgeCheck() {
     return useQuery({
         queryKey: ['nudge-check'],
         queryFn: checkForNudge,
-        staleTime: 60 * 1000, // 1 minute
+        staleTime: 5 * 60 * 1000, // 5 minutes
         refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
         retry: 1,
     });
@@ -107,7 +107,7 @@ export function useWeeklyInsights(days: number = 7) {
     return useQuery({
         queryKey: ['weekly-insights', days],
         queryFn: () => getWeeklyInsights(days),
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 30 * 60 * 1000, // 30 minutes
         retry: 2,
     });
 }
@@ -116,7 +116,7 @@ export function useInsightsStats(days: number = 7) {
     return useQuery({
         queryKey: ['insights-stats', days],
         queryFn: () => getInsightsStats(days),
-        staleTime: 2 * 60 * 1000, // 2 minutes
+        staleTime: 10 * 60 * 1000, // 10 minutes
         retry: 2,
     });
 }
@@ -125,7 +125,7 @@ export function useJournalingStreak() {
     return useQuery({
         queryKey: ['journaling-streak'],
         queryFn: getJournalingStreak,
-        staleTime: 5 * 60 * 1000, // 5 minutes
+        staleTime: 30 * 60 * 1000, // 30 minutes
     });
 }
 
@@ -163,12 +163,13 @@ export function useApiHealth() {
 // User Hook
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export function useUserProfile() {
+export function useUserProfile(options?: { enabled?: boolean }) {
     return useQuery({
         queryKey: ['user-profile'],
         queryFn: getUserProfile,
         retry: false, // Do not retry if 404
         staleTime: 5 * 60 * 1000,
+        enabled: options?.enabled ?? true,
     });
 }
 

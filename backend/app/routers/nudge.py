@@ -36,7 +36,7 @@ def _build_entries_summary(entries: list) -> str:
 
 
 @router.post("/check", response_model=NudgeDecision)
-async def check_nudge(
+async def check_for_nudge(
     request: NudgeCheckRequest = None,
     db: Session = Depends(get_db),
     user_id: str = Depends(get_current_user_id)
@@ -154,7 +154,7 @@ async def nudge_status(
     
     return {
         "entries_last_24h": len(recent_entries),
-        "avg_stress_score": round(avg_stress, 1) if avg_stress else None,
+        "avg_stress_score": round(avg_stress, 1) if avg_stress is not None else None,
         "last_intervention": last_intervention.created_at.isoformat() if last_intervention else None,
         "high_stress_entries": sum(1 for s in stress_scores if s and s > 70)
     }

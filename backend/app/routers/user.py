@@ -16,10 +16,17 @@ async def get_user_profile(
     """
     Get current user profile.
     """
-    user = db.query(User).filter(User.id == UUID(user_id)).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+    print(f"DEBUG: get_user_profile called for user_id: {user_id}")
+    try:
+        user = db.query(User).filter(User.id == UUID(user_id)).first()
+        print(f"DEBUG: DB query result: {user}")
+        if not user:
+            print("DEBUG: User not found in DB")
+            raise HTTPException(status_code=404, detail="User not found")
+        return user
+    except Exception as e:
+        print(f"DEBUG: Error in get_user_profile: {e}")
+        raise e
 
 @router.put("/profile", response_model=UserResponse)
 async def update_user_profile(

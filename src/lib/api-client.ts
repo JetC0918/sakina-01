@@ -81,21 +81,43 @@ async function apiRequest<T>(
   options: RequestInit = {}
 ): Promise<T> {
   const token = await getAuthToken();
+  // console.log(`[API] ${options.method || 'GET'} ${endpoint}`, { hasToken: !!token });
 
   if (!token) {
+    console.warn('[API] No auth token found');
     throw new Error('Not authenticated');
   }
 
-  const response = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...options.headers,
-    },
-  });
+  const controller = options.signal ? null : new AbortController();
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 15000) : null;
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      signal: options.signal ?? controller?.signal,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...options.headers,
+      },
+    });
+  } catch (error) {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 
   if (!response.ok) {
+    console.error(`[API] Error ${response.status} ${endpoint}`);
     const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
     throw new Error(error.detail || `API Error: ${response.status}`);
   }

@@ -28,14 +28,20 @@ async def verify_supabase_token(
     """
     token = credentials.credentials
     
-    async with httpx.AsyncClient() as client:
-        response = await client.get(
-            f"{settings.SUPABASE_URL}/auth/v1/user",
-            headers={
-                "Authorization": f"Bearer {token}",
-                "apikey": settings.SUPABASE_ANON_KEY
-            }
-        )
+    try:
+        async with httpx.AsyncClient(timeout=5.0) as client:
+            response = await client.get(
+                f"{settings.SUPABASE_URL}/auth/v1/user",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "apikey": settings.SUPABASE_ANON_KEY
+                }
+            )
+    except httpx.RequestError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Supabase auth unavailable: {exc}"
+        ) from exc
     
     if response.status_code != 200:
         raise HTTPException(

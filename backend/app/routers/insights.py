@@ -133,7 +133,7 @@ async def get_stats(
     return {
         "period_days": days,
         "entry_count": len(entries),
-        "avg_stress_score": round(avg_stress, 1) if avg_stress else None,
+        "avg_stress_score": round(avg_stress, 1) if avg_stress is not None else None,
         "mood_distribution": mood_counts,
         "intervention_count": len(interventions),
         "completed_interventions": completed_interventions,
@@ -154,40 +154,71 @@ async def get_journaling_streak(
     - Longest streak ever
     - Total entries
     """
-    entries = db.query(JournalEntry).filter(
-        JournalEntry.user_id == UUID(user_id)
-    ).order_by(desc(JournalEntry.created_at)).all()
+    # Optimize: Only fetch unique dates from the last 90 days
+    # This avoids fetching all entry content
+    from sqlalchemy import func
     
-    if not entries:
+    # Get unique dates with entries (optimized query)
+    entry_dates_query = db.query(
+        func.date(JournalEntry.created_at)
+    ).filter(
+        JournalEntry.user_id == UUID(user_id)
+    ).distinct().order_by(
+        desc(func.date(JournalEntry.created_at))
+    ).limit(90).all()  # Only need recent history for current streak
+    
+    if not entry_dates_query:
+        # Check if there are any entries at all for total count
+        total_count = db.query(JournalEntry).filter(
+            JournalEntry.user_id == UUID(user_id)
+        ).count()
+        
         return {
             "current_streak": 0,
             "longest_streak": 0,
-            "total_entries": 0
+            "total_entries": total_count
         }
     
-    # Get unique dates with entries
-    entry_dates = set()
-    for entry in entries:
-        entry_dates.add(entry.created_at.date())
+    # Convert result tuples to date objects
+    entry_dates = [d[0] for d in entry_dates_query]
     
-    entry_dates = sorted(entry_dates, reverse=True)
-    
-    # Calculate current streak
-    current_streak = 0
+    # Calculate streaks
     today = datetime.utcnow().date()
-    
-    for i, date in enumerate(entry_dates):
-        expected_date = today - timedelta(days=i)
-        if date == expected_date:
-            current_streak += 1
+    last_entry_date = entry_dates[0]
+
+    # Current streak only counts if the most recent entry is today or yesterday
+    current_streak = 0
+    is_active = (last_entry_date == today) or (last_entry_date == today - timedelta(days=1))
+    if is_active:
+        current_streak = 1
+        previous_date = last_entry_date
+        for date in entry_dates[1:]:
+            if date == previous_date - timedelta(days=1):
+                current_streak += 1
+                previous_date = date
+            else:
+                break
+
+    # Longest streak across the available history
+    longest_streak = 1
+    running = 1
+    prev_date = entry_dates[0]
+    for date in entry_dates[1:]:
+        if date == prev_date - timedelta(days=1):
+            running += 1
         else:
-            break
-    
-    # Calculate longest streak (simplified)
-    longest_streak = current_streak  # For now, same as current
-    
+            longest_streak = max(longest_streak, running)
+            running = 1
+        prev_date = date
+    longest_streak = max(longest_streak, running)
+                
+    # Get total count separately
+    total_count = db.query(JournalEntry).filter(
+        JournalEntry.user_id == UUID(user_id)
+    ).count()
+
     return {
         "current_streak": current_streak,
         "longest_streak": longest_streak,
-        "total_entries": len(entries)
+        "total_entries": total_count
     }
