@@ -152,8 +152,8 @@ export default function Journal() {
                         <span className="text-xs font-medium text-primary">AI Analysis</span>
                         {entry.stress_score !== null && (
                           <span className={`text-xs font-bold px-2 py-0.5 rounded ${entry.stress_score > 70 ? 'bg-red-100 text-red-700' :
-                              entry.stress_score > 40 ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-green-100 text-green-700'
+                            entry.stress_score > 40 ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-green-100 text-green-700'
                             }`}>
                             Stress: {entry.stress_score}
                           </span>
