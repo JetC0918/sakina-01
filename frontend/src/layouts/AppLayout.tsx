@@ -6,6 +6,8 @@ import { MobileNav } from '@/components/app/MobileNav';
 import { TopBar } from '@/components/app/TopBar';
 import { BioFeedbackPanel } from '@/components/app/BioFeedbackPanel';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Suspense } from 'react';
+import { ContentLoader } from '@/components/app/ContentLoader';
 
 export function AppLayout() {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -32,7 +34,9 @@ export function AppLayout() {
         {/* Page Content with padding for mobile nav */}
         <main className="flex-1 p-6 pb-24 md:pb-6">
           <AnimatePresence mode="wait" initial={false}>
-            <Outlet key={location.pathname} />
+            <Suspense fallback={<ContentLoader />}>
+              <Outlet key={location.pathname} />
+            </Suspense>
           </AnimatePresence>
         </main>
       </div>

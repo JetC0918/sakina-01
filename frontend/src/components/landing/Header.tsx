@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/80 backdrop-blur-md border-b border-border/50">
@@ -32,14 +34,14 @@ const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost">Sign In</Button>
-            <Button variant="secondary">Get Started</Button>
+            <Button variant="ghost" onClick={() => navigate('/auth')}>Sign In</Button>
+            <Button variant="secondary" onClick={() => navigate('/auth')}>Get Started</Button>
           </div>
 
           {/* Mobile Menu Button */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
+          <Button
+            variant="ghost"
+            size="icon"
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -60,8 +62,8 @@ const Header = () => {
               Download
             </a>
             <div className="flex gap-3 pt-2">
-              <Button variant="ghost" className="flex-1">Sign In</Button>
-              <Button variant="secondary" className="flex-1">Get Started</Button>
+              <Button variant="ghost" className="flex-1" onClick={() => navigate('/auth')}>Sign In</Button>
+              <Button variant="secondary" className="flex-1" onClick={() => navigate('/auth')}>Get Started</Button>
             </div>
           </div>
         )}
@@ -71,3 +73,4 @@ const Header = () => {
 };
 
 export default Header;
+

@@ -155,7 +155,7 @@ describe('Interventions Page', () => {
       localStorage.setItem(
         'sakina-store',
         JSON.stringify({
-          preferences: { theme: 'system', language: 'en', notifications: {}, subscription: 'free' },
+          preferences: { theme: 'light', language: 'en', notifications: {}, subscription: 'free' },
           journalHistory: [],
           interventionHistory: mockHistory,
           bioStatus: { currentLoad: 35, status: 'optimal', lastUpdated: new Date().toISOString() },
@@ -186,7 +186,7 @@ describe('Interventions Page', () => {
       localStorage.setItem(
         'sakina-store',
         JSON.stringify({
-          preferences: { theme: 'system', language: 'en', notifications: {}, subscription: 'free' },
+          preferences: { theme: 'light', language: 'en', notifications: {}, subscription: 'free' },
           journalHistory: [],
           interventionHistory: mockHistory,
           bioStatus: { currentLoad: 35, status: 'optimal', lastUpdated: new Date().toISOString() },

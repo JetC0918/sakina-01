@@ -45,6 +45,7 @@ export interface InterventionLog {
 }
 
 export interface SakinaStore {
+  isAuthenticated: boolean;
   preferences: UserPreferences;
   journalHistory: JournalEntry[];
   interventionHistory: InterventionLog[];

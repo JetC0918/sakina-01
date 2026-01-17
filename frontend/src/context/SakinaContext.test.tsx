@@ -58,7 +58,7 @@ describe('SakinaContext', () => {
         </SakinaProvider>
       );
 
-      expect(screen.getByTestId('theme').textContent).toBe('system');
+      expect(screen.getByTestId('theme').textContent).toBe('light');
       expect(screen.getByTestId('language').textContent).toBe('en');
       expect(screen.getByTestId('bio-load').textContent).toBe('35');
     });

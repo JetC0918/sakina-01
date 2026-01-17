@@ -14,13 +14,16 @@ interface SakinaContextType {
     updateBioStatus: (status: Partial<BioDataPoint>) => void;
     triggerNudge: (nudge: Partial<NudgeState>) => void;
     dismissNudge: () => void;
+    login: () => void;
+    logout: () => void;
   };
 }
 
 // Initial state
 const initialState: SakinaStore = {
+  isAuthenticated: false,
   preferences: {
-    theme: 'system',
+    theme: 'light',
     language: 'en',
     notifications: {
       nudges: true,
@@ -167,14 +170,35 @@ export function SakinaProvider({ children }: { children: React.ReactNode }) {
     }));
   }, [setState]);
 
+  const login = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      isAuthenticated: true,
+    }));
+  }, [setState]);
+
+  const logout = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      isAuthenticated: false,
+    }));
+  }, [setState]);
+
   // Side Effects: Sync theme and language to DOM
   useEffect(() => {
     const root = document.documentElement;
     const { theme } = state.preferences;
+    const { isAuthenticated } = state;
 
     const applyTheme = (isDark: boolean) => {
       root.classList.toggle('dark', isDark);
     };
+
+    // Force light mode if not authenticated
+    if (!isAuthenticated) {
+      applyTheme(false);
+      return;
+    }
 
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -188,7 +212,7 @@ export function SakinaProvider({ children }: { children: React.ReactNode }) {
     } else {
       applyTheme(theme === 'dark');
     }
-  }, [state.preferences.theme]);
+  }, [state.preferences.theme, state.isAuthenticated]);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -209,6 +233,8 @@ export function SakinaProvider({ children }: { children: React.ReactNode }) {
       updateBioStatus,
       triggerNudge,
       dismissNudge,
+      login,
+      logout,
     },
   };
 

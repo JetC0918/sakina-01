@@ -1,9 +1,10 @@
-import { Home, BookText, Heart, BarChart3, Settings, PanelLeft, PanelLeftClose } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Home, BookText, Heart, BarChart3, Settings, PanelLeft, PanelLeftClose, LogOut } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { SakinaLogo } from '@/components/SakinaLogo';
+import { useAuth } from '@/context/AuthContext';
 
 interface NavItem {
   icon: React.ElementType;
@@ -26,9 +27,16 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(path + '/');
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
 
   return (
@@ -91,28 +99,54 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <div className="p-2 border-t border-border flex justify-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSidebar}
-          className={cn(
-            "hover:bg-accent/50 transition-all duration-300",
-            isCollapsed ? "w-10 h-10 rounded-md p-0" : "w-full flex items-center justify-between px-3"
-          )}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <span className={cn(
-            "text-sm font-medium overflow-hidden transition-all duration-300",
-            isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
-          )}>
-            Collapse
-          </span>
-          {isCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-        </Button>
+      {/* Footer: Sign Out and Collapse Toggle */}
+      <div className="border-t border-border">
+        {/* Sign Out Button */}
+        <div className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSignOut}
+            className={cn(
+              "hover:bg-destructive/10 hover:text-destructive transition-all duration-300 w-full",
+              isCollapsed ? "w-10 h-10 rounded-md p-0 justify-center" : "flex items-center justify-start px-3"
+            )}
+            aria-label="Sign out"
+          >
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
+              <LogOut className="w-5 h-5" />
+            </div>
+            <span className={cn(
+              "text-sm font-medium overflow-hidden transition-all duration-300",
+              isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+            )}>
+              Sign Out
+            </span>
+          </Button>
+        </div>
+
+        {/* Collapse Toggle */}
+        <div className="p-2 border-t border-border flex justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleSidebar}
+            className={cn(
+              "hover:bg-accent/50 transition-all duration-300",
+              isCollapsed ? "w-10 h-10 rounded-md p-0" : "w-full flex items-center justify-between px-3"
+            )}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            <span className={cn(
+              "text-sm font-medium overflow-hidden transition-all duration-300",
+              isCollapsed ? "w-0 opacity-0" : "w-auto opacity-100"
+            )}>
+              Collapse
+            </span>
+            {isCollapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+          </Button>
+        </div>
       </div>
     </aside>
   );
 }
-
