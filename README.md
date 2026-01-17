@@ -40,38 +40,73 @@ This project is built with modern web technologies:
 ## 📁 Project Structure
 
 ```
-frontend/
+design-build-blueprint/
 ├── src/
 │   ├── components/
-│   │   ├── app/              # App dashboard components (Sidebar, TopBar, BioFeedbackPanel)
-│   │   │   ├── insights/     # Insights page components
-│   │   │   └── journal/      # Journal page components
-│   │   ├── interventions/    # Intervention/Calm exercise components
-│   │   ├── landing/          # Landing page sections (Hero, Features, HowItWorks)
-│   │   ├── ui/               # shadcn/ui component library
-│   │   ├── AuthModal.tsx     # Authentication modal (Sign In/Sign Up)
+│   │   ├── app/                    # App dashboard components
+│   │   │   ├── insights/           # Insights page components
+│   │   │   ├── journal/            # Journal page components (JournalEntry, MoodSelector, etc.)
+│   │   │   ├── BioFeedbackPanel.tsx
+│   │   │   ├── ContentLoader.tsx   # Loading animation for content area
+│   │   │   ├── MobileNav.tsx       # Mobile navigation bar
+│   │   │   ├── Sidebar.tsx         # Collapsible sidebar with hover/pin states
+│   │   │   └── TopBar.tsx
+│   │   ├── interventions/          # Calm exercise components
+│   │   │   ├── BreathingExercise.tsx
+│   │   │   ├── GroundingExercise.tsx
+│   │   │   ├── InterventionCard.tsx
+│   │   │   ├── InterventionDialog.tsx
+│   │   │   └── TimerExercise.tsx
+│   │   ├── landing/                # Landing page sections
+│   │   │   ├── Download.tsx
+│   │   │   ├── Features.tsx
+│   │   │   ├── Footer.tsx
+│   │   │   ├── Header.tsx
+│   │   │   ├── Hero.tsx
+│   │   │   └── HowItWorks.tsx
+│   │   ├── ui/                     # shadcn/ui component library (50+ components)
+│   │   ├── AuthModal.tsx           # Authentication modal (Sign In/Sign Up with Google)
+│   │   ├── NavLink.tsx
 │   │   ├── ProtectedRoute.tsx
 │   │   └── SakinaLogo.tsx
 │   ├── context/
-│   │   ├── AuthContext.tsx   # Authentication state (Supabase)
-│   │   └── SakinaContext.tsx # App state (journal, interventions, settings)
-│   ├── hooks/                # Custom React hooks
-│   ├── layouts/              # App layout components
-│   ├── lib/                  # Utility functions
+│   │   ├── AuthContext.tsx         # Authentication state (Supabase)
+│   │   └── SakinaContext.tsx       # App state (journal, interventions, settings)
+│   ├── data/
+│   │   └── interventions.ts        # Intervention data definitions
+│   ├── hooks/
+│   │   ├── use-mobile.tsx          # Mobile detection hook
+│   │   ├── use-toast.ts            # Toast notification hook
+│   │   ├── useLocalStorage.ts      # Persistent local storage hook
+│   │   └── useSakina.ts            # Main app state hook
+│   ├── layouts/
+│   │   └── AppLayout.tsx           # Main app layout with sidebar
+│   ├── lib/
+│   │   ├── animation-utils.ts      # Framer Motion animation helpers
+│   │   ├── gemini-client.ts        # Gemini AI client for analysis
+│   │   ├── mock-bio-data.ts        # Mock biofeedback data
+│   │   ├── mood-utils.ts           # Mood utilities and helpers
+│   │   ├── supabaseClient.ts       # Supabase client configuration
+│   │   └── utils.ts                # General utilities (cn, etc.)
 │   ├── pages/
-│   │   ├── app/              # Authenticated app pages
+│   │   ├── app/                    # Authenticated app pages
 │   │   │   ├── Dashboard.tsx
-│   │   │   ├── Journal.tsx
-│   │   │   ├── Interventions.tsx
 │   │   │   ├── Insights.tsx
+│   │   │   ├── Interventions.tsx
+│   │   │   ├── Journal.tsx
 │   │   │   └── Settings.tsx
-│   │   ├── Index.tsx         # Landing page
-│   │   ├── Auth.tsx          # Auth page (fallback)
+│   │   ├── Auth.tsx                # Auth page (fallback)
+│   │   ├── Index.tsx               # Landing page
 │   │   └── NotFound.tsx
-│   └── types/                # TypeScript type definitions
-├── design.json               # Design tokens and component specifications
+│   ├── test/                       # Test utilities and setup
+│   └── types/
+│       └── index.ts                # TypeScript type definitions
+├── public/                         # Static assets
+├── design.json                     # Design tokens and component specifications
 ├── package.json
-└── vite.config.ts
+├── tailwind.config.ts
+├── vite.config.ts
+└── vitest.config.ts
 ```
 
 ## 🚀 Getting Started
@@ -86,7 +121,7 @@ frontend/
 ```bash
 # Clone the repository
 git clone <YOUR_GIT_URL>
-cd design-build-blueprint/frontend
+cd design-build-blueprint
 
 # Install dependencies
 npm install
@@ -98,8 +133,6 @@ npm run dev
 The app will be available at `http://localhost:5173`
 
 ### Available Scripts
-
-Run these commands from the `frontend/` directory:
 
 | Command | Description |
 |---------|-------------|
