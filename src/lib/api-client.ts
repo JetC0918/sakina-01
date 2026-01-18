@@ -372,3 +372,32 @@ export interface InsightsSummary {
 export async function getInsightsSummary(days: number = 7): Promise<InsightsSummary> {
   return apiRequest<InsightsSummary>(`/api/insights/summary?days=${days}`);
 }
+// ══════════════════════════════════════════════════════════════════════════════�?
+// Voice Journal API (Appended)
+// ══════════════════════════════════════════════════════════════════════════════�?
+
+function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+export async function createVoiceJournalEntry(
+    audioBlob: Blob,
+    mood?: string
+): Promise<JournalEntryResponse> {
+    const base64Audio = await blobToBase64(audioBlob);
+    console.log('Uploading voice entry, size:', audioBlob.size, 'type:', audioBlob.type);
+
+    return apiRequest<JournalEntryResponse>('/api/journal/voice', {
+        method: 'POST',
+        body: JSON.stringify({
+            audio_data: base64Audio,
+            audio_mime_type: audioBlob.type,
+            mood,
+        }),
+    });
+}

@@ -25,12 +25,29 @@ PriorityLiteral = Literal["low", "medium", "high"]
 # Journal Entry Schemas
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class JournalEntryCreate(BaseModel):
     """Request schema for creating a journal entry."""
     content: str = Field(..., min_length=1, max_length=5000)
     mood: Optional[MoodLiteral] = None  # Optional - AI will detect if not provided
     entry_type: EntryTypeLiteral = "text"
 
+    @field_validator('mood', mode='before')
+    @classmethod
+    def validate_mood(cls, v):
+        if v is None:
+            return None
+        if isinstance(v, str):
+            return v.capitalize()
+        return v
+
+
+class VoiceJournalEntryCreate(BaseModel):
+    """Request schema for creating a voice journal entry."""
+    audio_data: str  # Base64 encoded audio
+    audio_mime_type: str = "audio/webm"
+    mood: Optional[MoodLiteral] = None
+    
     @field_validator('mood', mode='before')
     @classmethod
     def validate_mood(cls, v):

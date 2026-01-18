@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Mood } from '@/types/sakina';
 import { MOOD_CONFIG, ALL_MOODS } from '@/lib/mood-utils';
-import { JournalForm } from '@/components/app/journal/JournalForm';
+import { JournalForm, JournalFormData } from '@/components/app/journal/JournalForm';
 import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/PageTransition';
 import {
@@ -38,13 +38,19 @@ export default function Journal() {
 
   const createEntry = useCreateJournalEntry();
 
-  const handleSubmit = async (data: { type: 'text' | 'voice'; content: string; mood?: Mood }) => {
-    await createEntry.mutateAsync({
-      content: data.content,
-      mood: data.mood,  // Can be undefined - AI will detect
-      type: data.type,
-    });
-    setSheetOpen(false);
+  const handleSubmit = async (data: JournalFormData) => {
+    try {
+      await createEntry.mutateAsync({
+        content: data.content,
+        mood: data.mood,
+        type: data.type,
+        audioBlob: data.audioBlob,
+      });
+      setSheetOpen(false);
+    } catch (error) {
+      console.error("Failed to create entry:", error);
+      // Toast is handled in the hook
+    }
   };
 
   // Use count from stats API, or fallback to 0
@@ -203,20 +209,20 @@ export default function Journal() {
 
         {/* Sheet Modal */}
         <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
-          <SheetContent
-            side="bottom"
-            className="h-[85vh] rounded-t-2xl sm:max-w-md sm:mx-auto"
-          >
+          <SheetContent className="w-full sm:max-w-md h-full sm:h-auto overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>New Entry</SheetTitle>
+              <SheetTitle>New Journal Entry</SheetTitle>
               <SheetDescription>
-                How are you feeling right now?
+                Record your thoughts or write them down. Sakina will help you reflect.
               </SheetDescription>
             </SheetHeader>
-            <JournalForm
-              onSubmit={handleSubmit}
-              onCancel={() => setSheetOpen(false)}
-            />
+            <div className="mt-6 flex-1 h-full">
+              <JournalForm
+                onSubmit={handleSubmit}
+                onCancel={() => setSheetOpen(false)}
+                isSubmitting={createEntry.isPending}
+              />
+            </div>
           </SheetContent>
         </Sheet>
       </div>

@@ -7,16 +7,25 @@ import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 
-interface JournalFormProps {
-  onSubmit: (data: { type: 'text' | 'voice'; content: string; mood?: Mood }) => void;
-  onCancel: () => void;
+export interface JournalFormData {
+  type: 'text' | 'voice';
+  content: string; // Text content or duration string for voice
+  mood?: Mood;
+  audioBlob?: Blob; // Actual audio data for voice entries
 }
 
-export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
+interface JournalFormProps {
+  onSubmit: (data: JournalFormData) => void;
+  onCancel: () => void;
+  isSubmitting?: boolean;
+}
+
+export function JournalForm({ onSubmit, onCancel, isSubmitting = false }: JournalFormProps) {
   const [activeTab, setActiveTab] = useState<'text' | 'voice'>('text');
   const [selectedMood, setSelectedMood] = useState<Mood | undefined>(undefined);
   const [textContent, setTextContent] = useState('');
   const [voiceDuration, setVoiceDuration] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
@@ -32,20 +41,22 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
         mood: selectedMood,  // Can be undefined
       });
     } else {
-      if (voiceDuration === 0) {
+      if (voiceDuration === 0 || !audioBlob) {
         setError('Please record a voice note');
         return;
       }
       onSubmit({
         type: 'voice',
-        content: `${voiceDuration}s`, // Store duration as content for voice entries
+        content: `${voiceDuration}s`, // Keep duration as content placeholder/metadata
         mood: selectedMood,  // Can be undefined
+        audioBlob: audioBlob,
       });
     }
   };
 
-  const handleRecordingComplete = (duration: number) => {
-    setVoiceDuration(duration);
+  const handleRecordingComplete = (data: { duration: number; audioBlob: Blob }) => {
+    setVoiceDuration(data.duration);
+    setAudioBlob(data.audioBlob);
     setError(null);
   };
 
@@ -61,7 +72,8 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
 
   const isSubmitDisabled =
     (activeTab === 'text' && !textContent.trim()) ||
-    (activeTab === 'voice' && voiceDuration === 0);
+    (activeTab === 'voice' && (voiceDuration === 0 || !audioBlob)) ||
+    isSubmitting;
 
   return (
     <div className="flex flex-col h-full py-4 space-y-6">
@@ -89,6 +101,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
             value={textContent}
             onChange={handleTextChange}
             className="min-h-[200px] resize-none"
+            disabled={isSubmitting}
           />
         </TabsContent>
 
@@ -112,6 +125,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
           variant="outline"
           onClick={onCancel}
           className="flex-1"
+          disabled={isSubmitting}
         >
           Cancel
         </Button>
@@ -121,7 +135,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
           disabled={isSubmitDisabled}
           className="flex-1"
         >
-          Save Entry
+          {isSubmitting ? 'Saving...' : 'Save Entry'}
         </Button>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
     createJournalEntry,
+    createVoiceJournalEntry, // Added request
     getJournalEntries,
     deleteJournalEntry,
     checkForNudge,
@@ -48,8 +49,16 @@ export function useCreateJournalEntry() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: async (data: { content: string; mood: string; type: 'text' | 'voice' }) => {
-            return createJournalEntry(data.content, data.mood, data.type);
+        mutationFn: async (data: {
+            content: string;
+            mood?: string;
+            type: 'text' | 'voice';
+            audioBlob?: Blob;
+        }) => {
+            if (data.type === 'voice' && data.audioBlob) {
+                return createVoiceJournalEntry(data.audioBlob, data.mood);
+            }
+            return createJournalEntry(data.content, data.mood || '', data.type);
         },
         onSuccess: () => {
             // Invalidate journal entries to refetch

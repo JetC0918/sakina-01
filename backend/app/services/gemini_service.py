@@ -244,3 +244,71 @@ def _parse_json_response(text: str) -> dict:
     except json.JSONDecodeError as e:
         logger.warning(f"JSON parse error: {e}, raw text: {text[:200]}")
         raise ValueError(f"Failed to parse AI response as JSON: {e}")
+
+
+async def analyze_voice_journal(audio_bytes: bytes, mime_type: str = "audio/webm") -> dict:
+    """
+    Analyze a voice journal entry: transcribe and extract insights.
+    
+    Args:
+        audio_bytes: Raw audio data
+        mime_type: Mime type of the audio (e.g., audio/webm, audio/mp3)
+        
+    Returns:
+        Dict containing transcript and analysis results
+    """
+    try:
+        # Combined prompt for transcription and analysis to save tokens/calls
+        prompt = """You are Sakina. Process this voice journal entry:
+        
+        1. Accurately transcribe the speech to text.
+        2. Analyze the content for stress, emotion, and themes.
+        
+        Respond with VALID JSON only in this exact format:
+        {
+            "transcript": "<full transcription text>",
+            "stress_score": <number 0-100>,
+            "emotional_tone": "<1-2 words>",
+            "key_themes": ["<theme1>", "<theme2>"],
+            "suggested_intervention": "<breathing|grounding|reflection|null>",
+            "supportive_message": "<warm supportive message>",
+            "detected_mood": "<one of: Stressed, Anxious, Tired, Okay, Calm, Energized, Grateful, Focused, Happy, Exhausted, Frustrated>"
+        }
+        """
+        
+        # Pass prompt and inline audio data
+        response = await asyncio.to_thread(
+            model.generate_content,
+            [
+                prompt,
+                {
+                    "mime_type": mime_type,
+                    "data": audio_bytes
+                }
+            ]
+        )
+        
+        result = _parse_json_response(response.text)
+        
+        # Validate/Default fields
+        result.setdefault("transcript", "")
+        result.setdefault("stress_score", 50)
+        result.setdefault("emotional_tone", "neutral")
+        result.setdefault("key_themes", [])
+        result.setdefault("suggested_intervention", None)
+        result.setdefault("supportive_message", "I hear you.")
+        result.setdefault("detected_mood", "Okay")
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f"Gemini voice analysis error: {e}")
+        return {
+            "transcript": "(Transcription unavailable)",
+            "stress_score": 50,
+            "emotional_tone": "neutral",
+            "key_themes": [],
+            "suggested_intervention": None,
+            "supportive_message": "Sorry, I couldn't process the audio clearly.",
+            "detected_mood": "Okay"
+        }

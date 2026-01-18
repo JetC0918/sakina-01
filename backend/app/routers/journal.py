@@ -12,12 +12,14 @@ from app.database import get_db, SessionLocal
 from app.auth import get_current_user_id
 from app.models.journal import JournalEntry, MoodType, EntryType
 from app.schemas.schemas import (
-    JournalEntryCreate, 
+    JournalEntryCreate,
+    VoiceJournalEntryCreate,  # Added
     JournalEntryResponse,
     AnalyzeRequest,
     JournalAnalysis
 )
-from app.services.gemini_service import analyze_journal_entry
+from app.services.gemini_service import analyze_journal_entry, analyze_voice_journal
+import base64
 
 router = APIRouter()
 
@@ -94,6 +96,67 @@ async def create_journal_entry(
     background_tasks.add_task(_analyze_and_update_entry, db_entry.id)
     
     return db_entry
+
+
+@router.post("/voice", response_model=JournalEntryResponse)
+async def create_voice_journal_entry(
+    entry: VoiceJournalEntryCreate,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Create a new voice journal entry.
+    
+    Audio is transcribed and analyzed by AI immediately.
+    """
+    try:
+        # Decode base64 audio
+        # Handle data:audio/webm;base64, prefix if present
+        if "," in entry.audio_data:
+            audio_data = entry.audio_data.split(",")[1]
+        else:
+            audio_data = entry.audio_data
+            
+        audio_bytes = base64.b64decode(audio_data)
+        
+        # Analyze with Gemini (Audio -> Text + Analysis)
+        # We do this synchronously (await) so we can save the transcript
+        analysis = await analyze_voice_journal(audio_bytes, entry.audio_mime_type)
+        
+        # Determine mood (User provided > AI detected > Okay)
+        mood_str = entry.mood or analysis.get("detected_mood", "Okay")
+        mood_enum = next(
+            (m for m in MoodType if m.value.lower() == mood_str.lower()), 
+            MoodType.Okay
+        )
+        
+        # Create entry with transcribed text
+        transcript = analysis.get("transcript") or "(Audio transcription failed)"
+        
+        db_entry = JournalEntry(
+            user_id=UUID(user_id),
+            entry_type=EntryType.voice,
+            content=transcript,
+            mood=mood_enum,
+            
+            # Populate analysis immediately
+            stress_score=analysis.get("stress_score"),
+            emotional_tone=analysis.get("emotional_tone"),
+            key_themes=analysis.get("key_themes"),
+            suggested_intervention=analysis.get("suggested_intervention"),
+            supportive_message=analysis.get("supportive_message"),
+            analyzed_at=datetime.utcnow()
+        )
+        
+        db.add(db_entry)
+        db.commit()
+        db.refresh(db_entry)
+        
+        return db_entry
+        
+    except Exception as e:
+        print(f"Voice entry creation error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to process voice entry: {str(e)}")
 
 
 @router.get("/", response_model=List[JournalEntryResponse])
