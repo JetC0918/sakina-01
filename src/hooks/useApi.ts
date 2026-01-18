@@ -113,7 +113,7 @@ export function useWeeklyInsights(days: number = 7) {
     return useQuery({
         queryKey: ['weekly-insights', days],
         queryFn: () => getWeeklyInsights(days),
-        staleTime: 30 * 60 * 1000, // 30 minutes
+        staleTime: 30 * 60 * 1000, // 30 minutes - AI insights are expensive
         retry: 2,
     });
 }
@@ -133,6 +133,52 @@ export function useJournalingStreak() {
         queryFn: getJournalingStreak,
         staleTime: 30 * 60 * 1000, // 30 minutes
     });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Combined Insights Hook (Optimized - Stats load fast, AI loads separately)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+import { getInsightsSummary, type InsightsSummary } from '@/lib/api-client';
+
+export function useInsightsData(days: number = 7) {
+    // Fast path: stats + streak combined
+    const summaryQuery = useQuery({
+        queryKey: ['insights-summary', days],
+        queryFn: () => getInsightsSummary(days),
+        staleTime: 2 * 60 * 1000, // 2 minutes
+        retry: 2,
+    });
+
+    // Slow path: AI-generated insights (loads separately)
+    const aiQuery = useQuery({
+        queryKey: ['weekly-insights', days],
+        queryFn: () => getWeeklyInsights(days),
+        staleTime: 30 * 60 * 1000, // 30 minutes - cache AI results longer
+        retry: 2,
+    });
+
+    return {
+        // Stats load immediately
+        stats: summaryQuery.data?.stats,
+        streak: summaryQuery.data?.streak,
+        statsLoading: summaryQuery.isLoading,
+        statsError: summaryQuery.isError,
+
+        // AI insights load separately (slower)
+        insights: aiQuery.data,
+        insightsLoading: aiQuery.isLoading,
+        insightsError: aiQuery.isError,
+
+        // Combined loading state - true only if stats are loading
+        isLoading: summaryQuery.isLoading,
+        isError: summaryQuery.isError || aiQuery.isError,
+
+        refetch: () => {
+            summaryQuery.refetch();
+            aiQuery.refetch();
+        },
+    };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

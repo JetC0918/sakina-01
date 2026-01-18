@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { PageTransition } from '@/components/ui/PageTransition';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { useWeeklyInsights, useInsightsStats, useJournalingStreak } from '@/hooks/useApi';
+import { useInsightsData } from '@/hooks/useApi';
 import {
   TrendingUp,
   TrendingDown,
@@ -14,31 +14,31 @@ import {
   Flame,
   Activity,
   Wind,
-  RefreshCw
+  RefreshCw,
+  ThumbsUp
 } from 'lucide-react';
 
 export default function Insights() {
   const [timeRange, setTimeRange] = useState<'7' | '30'>('7');
   const days = parseInt(timeRange);
 
-  // API hooks
-  const { data: insights, isLoading: insightsLoading, isError: insightsError, refetch: refetchInsights } = useWeeklyInsights(days);
-  const { data: stats, isLoading: statsLoading, isError: statsError, refetch: refetchStats } = useInsightsStats(days);
-  const { data: streak, isLoading: streakLoading } = useJournalingStreak();
+  // Optimized: Stats load fast, AI insights load separately in background
+  const {
+    stats,
+    streak,
+    insights,
+    insightsLoading,
+    isLoading,
+    isError,
+    refetch
+  } = useInsightsData(days);
 
-  const isLoading = insightsLoading || statsLoading || streakLoading;
-  const isError = insightsError || statsError;
-
-  const refetch = () => {
-    refetchInsights();
-    refetchStats();
-  };
 
   // Trend icon based on pattern
   const getTrendIcon = (trend?: string) => {
     switch (trend) {
       case 'improving':
-        return <TrendingDown className="h-5 w-5 text-green-500" />;
+        return <ThumbsUp className="h-5 w-5 text-green-500" />;
       case 'declining':
         return <TrendingUp className="h-5 w-5 text-red-500" />;
       default:
@@ -102,7 +102,7 @@ export default function Insights() {
                   <Brain className="h-5 w-5" />
                   AI {timeRange === '7' ? 'Weekly' : 'Monthly'} Summary
                 </CardTitle>
-                {isLoading ? (
+                {insightsLoading ? (
                   <Skeleton className="h-6 w-20" />
                 ) : (
                   <div className="flex items-center gap-1">
@@ -113,7 +113,7 @@ export default function Insights() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
+              {insightsLoading ? (
                 <div className="space-y-2">
                   <Skeleton className="h-4 w-full" />
                   <Skeleton className="h-4 w-3/4" />

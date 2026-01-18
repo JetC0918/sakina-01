@@ -359,3 +359,16 @@ export interface DashboardSummary {
 export async function getDashboardSummary(): Promise<DashboardSummary> {
   return apiRequest<DashboardSummary>('/api/dashboard/summary');
 }
+
+export interface InsightsSummary {
+  stats: InsightsStats;
+  streak: JournalingStreak;
+}
+
+/**
+ * Get combined insights data (stats + streak) in a single request.
+ * AI insights load separately via getWeeklyInsights.
+ */
+export async function getInsightsSummary(days: number = 7): Promise<InsightsSummary> {
+  return apiRequest<InsightsSummary>(`/api/insights/summary?days=${days}`);
+}

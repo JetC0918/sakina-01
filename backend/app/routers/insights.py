@@ -3,7 +3,7 @@ Insights API Router - Weekly wellness pattern analysis.
 """
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 from uuid import UUID
 from datetime import datetime, timedelta
 
@@ -15,6 +15,112 @@ from app.schemas.schemas import InsightsRequest, StressPattern
 from app.services.gemini_service import generate_weekly_insights
 
 router = APIRouter()
+
+
+@router.get("/summary")
+async def get_insights_summary(
+    days: int = 7,
+    db: Session = Depends(get_db),
+    user_id: str = Depends(get_current_user_id)
+):
+    """
+    Get combined insights data (stats + streak) in a single request.
+    This is the fast path - AI insights load separately.
+    
+    Reduces 2 API calls to 1 for faster initial page load.
+    """
+    since = datetime.utcnow() - timedelta(days=days)
+    
+    # Get entries
+    entries = db.query(JournalEntry).filter(
+        JournalEntry.user_id == UUID(user_id),
+        JournalEntry.created_at >= since
+    ).all()
+    
+    # Get interventions
+    interventions = db.query(InterventionLog).filter(
+        InterventionLog.user_id == UUID(user_id),
+        InterventionLog.created_at >= since
+    ).all()
+    
+    # Calculate stats
+    stress_scores = [e.stress_score for e in entries if e.stress_score is not None]
+    avg_stress = sum(stress_scores) / len(stress_scores) if stress_scores else None
+    
+    # Mood distribution
+    mood_counts = {}
+    for entry in entries:
+        if entry.mood:
+            mood = entry.mood.value
+            mood_counts[mood] = mood_counts.get(mood, 0) + 1
+    
+    # Intervention stats
+    completed_interventions = sum(1 for i in interventions if i.completed)
+    total_intervention_time = sum(i.duration_seconds for i in interventions if i.completed)
+    
+    # Get streak data (optimized query)
+    entry_dates_query = db.query(
+        func.date(JournalEntry.created_at)
+    ).filter(
+        JournalEntry.user_id == UUID(user_id)
+    ).distinct().order_by(
+        desc(func.date(JournalEntry.created_at))
+    ).limit(90).all()
+    
+    current_streak = 0
+    longest_streak = 0
+    
+    if entry_dates_query:
+        entry_dates = [d[0] for d in entry_dates_query]
+        today = datetime.utcnow().date()
+        last_entry_date = entry_dates[0]
+        
+        # Current streak
+        is_active = (last_entry_date == today) or (last_entry_date == today - timedelta(days=1))
+        if is_active:
+            current_streak = 1
+            previous_date = last_entry_date
+            for date in entry_dates[1:]:
+                if date == previous_date - timedelta(days=1):
+                    current_streak += 1
+                    previous_date = date
+                else:
+                    break
+        
+        # Longest streak
+        longest_streak = 1
+        running = 1
+        prev_date = entry_dates[0]
+        for date in entry_dates[1:]:
+            if date == prev_date - timedelta(days=1):
+                running += 1
+            else:
+                longest_streak = max(longest_streak, running)
+                running = 1
+            prev_date = date
+        longest_streak = max(longest_streak, running)
+    
+    # Total entries
+    total_entries = db.query(JournalEntry).filter(
+        JournalEntry.user_id == UUID(user_id)
+    ).count()
+    
+    return {
+        "stats": {
+            "period_days": days,
+            "entry_count": len(entries),
+            "avg_stress_score": round(avg_stress, 1) if avg_stress is not None else None,
+            "mood_distribution": mood_counts,
+            "intervention_count": len(interventions),
+            "completed_interventions": completed_interventions,
+            "total_calm_minutes": round(total_intervention_time / 60, 1)
+        },
+        "streak": {
+            "current_streak": current_streak,
+            "longest_streak": longest_streak,
+            "total_entries": total_entries
+        }
+    }
 
 
 def _build_period_summary(entries: list, days: int) -> str:
