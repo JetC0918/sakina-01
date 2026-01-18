@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useJournalEntries, useCreateJournalEntry } from '@/hooks/useApi';
+import { useJournalEntries, useCreateJournalEntry, useInsightsStats } from '@/hooks/useApi';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function Journal() {
@@ -32,6 +32,10 @@ export default function Journal() {
   const { data: entries, isLoading, isError, refetch } = useJournalEntries(
     filterMood === 'all' ? undefined : filterMood
   );
+
+  // Use stats endpoint for accurate weekly count (server-side calculation)
+  const { data: stats } = useInsightsStats(7);
+
   const createEntry = useCreateJournalEntry();
 
   const handleSubmit = async (data: { type: 'text' | 'voice'; content: string; mood?: Mood }) => {
@@ -43,13 +47,8 @@ export default function Journal() {
     setSheetOpen(false);
   };
 
-  // Calculate weekly count
-  const weeklyCount = entries?.filter((entry) => {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    const entryDate = new Date(entry.created_at);
-    return entryDate >= weekAgo;
-  }).length || 0;
+  // Use count from stats API, or fallback to 0
+  const weeklyCount = stats?.entry_count || 0;
 
   return (
     <PageTransition>

@@ -139,13 +139,24 @@ export function useJournalingStreak() {
 // Combined Insights Hook (Optimized - Stats load fast, AI loads separately)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { getInsightsSummary, type InsightsSummary } from '@/lib/api-client';
+import { getInsightsSummary, type InsightsSummary, type DashboardSummary } from '@/lib/api-client';
 
 export function useInsightsData(days: number = 7) {
+    const queryClient = useQueryClient();
+
+    // Optimization: Reuse data from dashboard-summary query if immediately available (hydration)
+    // The dashboard fetches 7-day stats and streak, so we can use that to show data INSTANTLY.
+    const dashboardData = queryClient.getQueryData<DashboardSummary>(['dashboard-summary']);
+    const initialData = (days === 7 && dashboardData) ? {
+        stats: dashboardData.stats,
+        streak: dashboardData.streak
+    } : undefined;
+
     // Fast path: stats + streak combined
     const summaryQuery = useQuery({
         queryKey: ['insights-summary', days],
         queryFn: () => getInsightsSummary(days),
+        initialData: initialData,
         staleTime: 2 * 60 * 1000, // 2 minutes
         retry: 2,
     });
