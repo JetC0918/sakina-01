@@ -5,9 +5,7 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">S</span>
-            </div>
+            <img src="/logo.svg" alt="Sakina" className="w-8 h-8" />
             <span className="text-lg font-semibold text-foreground">Sakina</span>
           </div>
 

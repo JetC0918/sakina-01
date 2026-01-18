@@ -25,9 +25,7 @@ const Header = () => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-lg">S</span>
-              </div>
+              <img src="/logo.svg" alt="Sakina" className="w-10 h-10" />
               <span className="text-xl font-semibold text-foreground">Sakina</span>
             </div>
 

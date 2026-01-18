@@ -68,9 +68,7 @@ export default function Auth() {
                 <Card>
                     <CardHeader className="text-center">
                         {/* Logo */}
-                        <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mx-auto mb-4">
-                            <span className="text-primary-foreground font-bold text-xl">S</span>
-                        </div>
+                        <img src="/logo.svg" alt="Sakina" className="w-12 h-12 mx-auto mb-4" />
                         <CardTitle className="text-2xl">Welcome to Sakina</CardTitle>
                         <CardDescription>
                             Your calm companion for emotional wellness

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Activity } from 'lucide-react';
 import { useSakina } from '@/hooks/useSakina';
 import { cn } from '@/lib/utils';
-import { SakinaLogo } from '@/components/SakinaLogo';
+
 
 interface TopBarProps {
   onOpenPanel: () => void;
@@ -16,7 +16,7 @@ export function TopBar({ onOpenPanel }: TopBarProps) {
     <header className="xl:hidden sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="flex items-center justify-between h-14 px-4">
         <div className="flex items-center gap-2">
-          <SakinaLogo className="w-8 h-8" />
+          <img src="/logo.svg" alt="Sakina" className="w-8 h-8" />
           <h1 className="text-lg font-semibold">Sakina</h1>
         </div>
 

@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { SakinaLogo } from '@/components/SakinaLogo';
+
 import { useAuth } from '@/context/AuthContext';
 
 interface NavItem {
@@ -49,7 +49,7 @@ export function Sidebar({ isCollapsed, toggleSidebar }: SidebarProps) {
       {/* App Header / Logo */}
       <div className="h-16 flex items-center px-3 border-b border-border mb-2">
         <div className="w-10 h-10 flex items-center justify-center shrink-0">
-          <SakinaLogo className="w-8 h-8" />
+          <img src="/logo.svg" alt="Sakina" className="w-8 h-8" />
         </div>
         <div className={cn(
           "overflow-hidden transition-all duration-300 ease-in-out ml-2",

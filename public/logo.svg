@@ -1,0 +1,16 @@
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background shape - soft rounded square -->
+  <rect x="5" y="5" width="90" height="90" rx="20" fill="#C9AD73" />
+  
+  <!-- Abstract 'S' / Calm Wave shape -->
+  <path
+    d="M30 40 C 30 25, 70 25, 70 40 C 70 65, 30 65, 30 80 C 30 95, 70 85, 70 80"
+    stroke="#1a1a1a"
+    stroke-width="8"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  
+  <!-- Upper dot for balance -->
+  <circle cx="70" cy="30" r="6" fill="#1a1a1a" />
+</svg>

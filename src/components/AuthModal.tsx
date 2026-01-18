@@ -86,9 +86,7 @@ export function AuthModal({ open, onOpenChange, defaultTab = 'signin' }: AuthMod
             <DialogContent className="sm:max-w-md">
                 <DialogHeader className="text-center">
                     {/* Logo */}
-                    <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center mx-auto mb-2">
-                        <span className="text-primary-foreground font-bold text-xl">S</span>
-                    </div>
+                    <img src="/logo.svg" alt="Sakina" className="w-12 h-12 mx-auto mb-2" />
                     <DialogTitle className="text-2xl">Welcome to Sakina</DialogTitle>
                     <DialogDescription>
                         Your calm companion for emotional wellness
