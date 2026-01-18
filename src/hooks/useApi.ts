@@ -203,27 +203,42 @@ export function useUpdateUserProfile() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Combined Hook for Dashboard
+// Combined Hook for Dashboard (Optimized - Single API Call)
 // ═══════════════════════════════════════════════════════════════════════════════
 
+import { getDashboardSummary, type DashboardSummary } from '@/lib/api-client';
+
 export function useDashboardData() {
-    const journalQuery = useJournalEntries();
-    const nudgeQuery = useNudgeCheck();
-    const statsQuery = useInsightsStats(7);
-    const streakQuery = useJournalingStreak();
+    const queryClient = useQueryClient();
+
+    const dashboardQuery = useQuery({
+        queryKey: ['dashboard-summary'],
+        queryFn: getDashboardSummary,
+        staleTime: 60 * 1000, // 1 minute
+        retry: 2,
+        refetchInterval: (query) => {
+            const data = query.state.data;
+            if (!data) return false;
+            // Poll if any entry is pending analysis
+            const hasPendingAnalysis = data.entries.some((entry) => !entry.analyzed_at);
+            return hasPendingAnalysis ? 3000 : false;
+        },
+    });
 
     return {
-        isLoading: journalQuery.isLoading || nudgeQuery.isLoading,
-        isError: journalQuery.isError || nudgeQuery.isError,
-        entries: journalQuery.data || [],
-        nudge: nudgeQuery.data,
-        stats: statsQuery.data,
-        streak: streakQuery.data,
+        isLoading: dashboardQuery.isLoading,
+        isError: dashboardQuery.isError,
+        entries: dashboardQuery.data?.entries || [],
+        nudge: dashboardQuery.data?.nudge,
+        stats: dashboardQuery.data?.stats,
+        streak: dashboardQuery.data?.streak,
         refetch: () => {
-            journalQuery.refetch();
-            nudgeQuery.refetch();
-            statsQuery.refetch();
-            streakQuery.refetch();
+            dashboardQuery.refetch();
+            // Also invalidate individual queries so other pages get fresh data
+            queryClient.invalidateQueries({ queryKey: ['journal-entries'] });
+            queryClient.invalidateQueries({ queryKey: ['nudge-check'] });
+            queryClient.invalidateQueries({ queryKey: ['insights-stats'] });
+            queryClient.invalidateQueries({ queryKey: ['journaling-streak'] });
         },
     };
 }

@@ -21,12 +21,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    /* Primary: Warm beige - calm, gentle */
-    --primary: 35 46% 79%;
-    /* #E2CEB1 */
+    /* Primary: Golden-beige - #C9AD73 */
+    --primary: 40 44% 62%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: 35 46% 89%;
-    /* #F3EADF */
+    --primary-soft: 40 44% 92%;
 
     /* Secondary: Dark slate for contrast */
     --secondary: 220 43% 11%;
@@ -64,9 +62,9 @@ All colors MUST be HSL.
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 215 16% 47%;
-    --sidebar-primary: 35 46% 79%;
+    --sidebar-primary: 40 44% 62%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 35 46% 89%;
+    --sidebar-accent: 40 44% 92%;
     --sidebar-accent-foreground: 222 47% 11%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 205 87% 69%;
@@ -86,9 +84,9 @@ All colors MUST be HSL.
     --popover: 222 47% 10%;
     --popover-foreground: 210 40% 96%;
 
-    --primary: 35 46% 79%;
+    --primary: 40 44% 75%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: 35 40% 25%;
+    --primary-soft: 40 44% 25%;
 
     --secondary: 210 40% 90%;
     --secondary-foreground: 222 47% 11%;
@@ -112,9 +110,9 @@ All colors MUST be HSL.
 
     --sidebar-background: 222 47% 8%;
     --sidebar-foreground: 210 40% 90%;
-    --sidebar-primary: 35 46% 79%;
+    --sidebar-primary: 40 44% 75%;
     --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 35 40% 20%;
+    --sidebar-accent: 40 44% 20%;
     --sidebar-accent-foreground: 210 40% 96%;
     --sidebar-border: 217 32% 20%;
     --sidebar-ring: 205 87% 55%;
