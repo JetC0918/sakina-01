@@ -1,11 +1,13 @@
 import { useId } from 'react';
+import { useAuth } from '@/context/AuthContext';
 import { useSakina } from '@/hooks/useSakina';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
-import { Palette, Bell, CreditCard, Sun, Moon, Laptop } from 'lucide-react';
+import { Palette, Bell, CreditCard, Sun, Moon, Laptop, LogOut } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { PageTransition } from '@/components/ui/PageTransition';
 import type { Theme, Language } from '@/types/sakina';
 import type { LucideIcon } from 'lucide-react';
@@ -117,67 +119,93 @@ function SwitchRow({ label, description, checked, onCheckedChange }: SwitchRowPr
 }
 
 // Main Settings Page
+// Main Settings Page
 export default function Settings() {
   const { state, actions } = useSakina();
+  const { signOut } = useAuth();
   const { preferences } = state;
+
+  const handleLogout = async () => {
+    await signOut();
+    actions.logout();
+  };
 
   return (
     <PageTransition>
       <div className="flex flex-col h-full max-w-4xl mx-auto space-y-6 pb-24 md:pb-0">
-      {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-        <p className="text-muted-foreground">
-          Customize your Sakina experience.
-        </p>
+        {/* Header */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-muted-foreground">
+            Customize your Sakina experience.
+          </p>
+        </div>
+
+        {/* Bento Grid */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Card 1: Appearance */}
+          <Card className="p-6 space-y-6">
+            <SectionHeader icon={Palette} title="Appearance" />
+            <ThemeSelector />
+            <LanguageSwitcher />
+          </Card>
+
+          {/* Card 2: Notifications */}
+          <Card className="p-6 space-y-6">
+            <SectionHeader icon={Bell} title="Notifications" />
+            <SwitchRow
+              label="AI Nudges"
+              description="Receive gentle interventions when stress is detected"
+              checked={preferences.notifications.nudges}
+              onCheckedChange={(checked) =>
+                actions.updateNotificationPreferences({ nudges: checked })
+              }
+            />
+            <SwitchRow
+              label="Daily Reminder"
+              description="Get reminded to journal once per day"
+              checked={preferences.notifications.dailyReminder}
+              onCheckedChange={(checked) =>
+                actions.updateNotificationPreferences({ dailyReminder: checked })
+              }
+            />
+          </Card>
+
+          {/* Card 3: Account (Full Width) */}
+          <Card className="p-6 md:col-span-2 flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-lg">Subscription Plan</h3>
+              <p className="text-sm text-muted-foreground">
+                {preferences.subscription === 'premium'
+                  ? 'Enjoy unlimited features and advanced insights'
+                  : 'Upgrade to Premium for advanced analytics and unlimited interventions'}
+              </p>
+            </div>
+            <Badge variant={preferences.subscription === 'premium' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+              {preferences.subscription === 'premium' ? 'Premium' : 'Free'}
+            </Badge>
+          </Card>
+        </div>
+
+        {/* Logout Button */}
+        <div className="md:hidden">
+          <Card
+            className="p-4 flex items-center justify-center gap-2 text-destructive cursor-pointer hover:bg-destructive/10 transition-colors"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-5 h-5" />
+            <span className="font-semibold">Log Out</span>
+          </Card>
+        </div>
+
+        <div className="hidden md:flex justify-end">
+          <Button variant="destructive" onClick={handleLogout} className="gap-2">
+            <LogOut className="w-4 h-4" />
+            Log Out
+          </Button>
+        </div>
+
       </div>
-
-      {/* Bento Grid */}
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Card 1: Appearance */}
-        <Card className="p-6 space-y-6">
-          <SectionHeader icon={Palette} title="Appearance" />
-          <ThemeSelector />
-          <LanguageSwitcher />
-        </Card>
-
-        {/* Card 2: Notifications */}
-        <Card className="p-6 space-y-6">
-          <SectionHeader icon={Bell} title="Notifications" />
-          <SwitchRow
-            label="AI Nudges"
-            description="Receive gentle interventions when stress is detected"
-            checked={preferences.notifications.nudges}
-            onCheckedChange={(checked) =>
-              actions.updateNotificationPreferences({ nudges: checked })
-            }
-          />
-          <SwitchRow
-            label="Daily Reminder"
-            description="Get reminded to journal once per day"
-            checked={preferences.notifications.dailyReminder}
-            onCheckedChange={(checked) =>
-              actions.updateNotificationPreferences({ dailyReminder: checked })
-            }
-          />
-        </Card>
-
-        {/* Card 3: Account (Full Width) */}
-        <Card className="p-6 md:col-span-2 flex justify-between items-center">
-          <div>
-            <h3 className="font-semibold text-lg">Subscription Plan</h3>
-            <p className="text-sm text-muted-foreground">
-              {preferences.subscription === 'premium'
-                ? 'Enjoy unlimited features and advanced insights'
-                : 'Upgrade to Premium for advanced analytics and unlimited interventions'}
-            </p>
-          </div>
-          <Badge variant={preferences.subscription === 'premium' ? 'default' : 'secondary'} className="text-sm px-3 py-1">
-            {preferences.subscription === 'premium' ? 'Premium' : 'Free'}
-          </Badge>
-        </Card>
-      </div>
-    </div>
     </PageTransition>
   );
 }
