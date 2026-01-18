@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 
 interface JournalFormProps {
-  onSubmit: (data: { type: 'text' | 'voice'; content: string; mood: Mood }) => void;
+  onSubmit: (data: { type: 'text' | 'voice'; content: string; mood?: Mood }) => void;
   onCancel: () => void;
 }
 
@@ -20,12 +20,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
-    // Validation
-    if (!selectedMood) {
-      setError('Please select how you are feeling');
-      return;
-    }
-
+    // Validation - only content is required, mood is optional
     if (activeTab === 'text') {
       if (!textContent.trim()) {
         setError('Please write something about how you feel');
@@ -34,7 +29,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
       onSubmit({
         type: 'text',
         content: textContent.trim(),
-        mood: selectedMood,
+        mood: selectedMood,  // Can be undefined
       });
     } else {
       if (voiceDuration === 0) {
@@ -44,7 +39,7 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
       onSubmit({
         type: 'voice',
         content: `${voiceDuration}s`, // Store duration as content for voice entries
-        mood: selectedMood,
+        mood: selectedMood,  // Can be undefined
       });
     }
   };
@@ -65,14 +60,18 @@ export function JournalForm({ onSubmit, onCancel }: JournalFormProps) {
   };
 
   const isSubmitDisabled =
-    !selectedMood ||
     (activeTab === 'text' && !textContent.trim()) ||
     (activeTab === 'voice' && voiceDuration === 0);
 
   return (
     <div className="flex flex-col h-full py-4 space-y-6">
-      {/* Mood Selector */}
-      <MoodSelector value={selectedMood} onChange={handleMoodChange} />
+      {/* Mood Selector - Optional */}
+      <div className="space-y-2">
+        <MoodSelector value={selectedMood} onChange={handleMoodChange} />
+        <p className="text-xs text-muted-foreground text-center">
+          Optional — AI will detect your mood if not selected
+        </p>
+      </div>
 
       {/* Input Mode Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'text' | 'voice')}>

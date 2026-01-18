@@ -29,7 +29,7 @@ export interface JournalEntry {
   id: string;
   type: 'text' | 'voice';
   content: string;
-  mood: Mood;
+  mood?: Mood | null;  // Optional - AI will detect if not provided
   timestamp: string; // ISO String
 }
 

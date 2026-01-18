@@ -34,10 +34,10 @@ export default function Journal() {
   );
   const createEntry = useCreateJournalEntry();
 
-  const handleSubmit = async (data: { type: 'text' | 'voice'; content: string; mood: Mood }) => {
+  const handleSubmit = async (data: { type: 'text' | 'voice'; content: string; mood?: Mood }) => {
     await createEntry.mutateAsync({
       content: data.content,
-      mood: data.mood,
+      mood: data.mood,  // Can be undefined - AI will detect
       type: data.type,
     });
     setSheetOpen(false);
@@ -134,8 +134,16 @@ export default function Journal() {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg capitalize flex items-center gap-2">
-                      {MOOD_CONFIG[entry.mood as Mood]?.emoji || '📝'}
-                      {entry.mood}
+                      {entry.mood ? (
+                        <>
+                          {MOOD_CONFIG[entry.mood as Mood]?.emoji || '📝'}
+                          {entry.mood}
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground text-sm italic">
+                          🔄 Analyzing mood...
+                        </span>
+                      )}
                     </CardTitle>
                     <CardDescription>
                       {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}

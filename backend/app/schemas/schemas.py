@@ -28,12 +28,14 @@ PriorityLiteral = Literal["low", "medium", "high"]
 class JournalEntryCreate(BaseModel):
     """Request schema for creating a journal entry."""
     content: str = Field(..., min_length=1, max_length=5000)
-    mood: MoodLiteral
+    mood: Optional[MoodLiteral] = None  # Optional - AI will detect if not provided
     entry_type: EntryTypeLiteral = "text"
 
     @field_validator('mood', mode='before')
     @classmethod
     def validate_mood(cls, v):
+        if v is None:
+            return None
         if isinstance(v, str):
             return v.capitalize()
         return v
@@ -61,7 +63,7 @@ class JournalEntryResponse(BaseModel):
     user_id: UUID
     entry_type: EntryTypeLiteral
     content: str
-    mood: MoodLiteral
+    mood: Optional[MoodLiteral] = None  # May be None until AI analysis completes
     
     # AI Analysis (may be null if not yet analyzed)
     stress_score: Optional[int] = None
@@ -206,11 +208,13 @@ class UserResponse(BaseModel):
 class AnalyzeRequest(BaseModel):
     """Direct request to analyze text content."""
     content: str = Field(..., min_length=1, max_length=5000)
-    mood: MoodLiteral
+    mood: Optional[MoodLiteral] = None  # Optional - AI will detect if not provided
 
     @field_validator('mood', mode='before')
     @classmethod
     def validate_mood(cls, v):
+        if v is None:
+            return None
         if isinstance(v, str):
             return v.capitalize()
         return v

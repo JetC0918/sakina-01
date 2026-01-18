@@ -86,7 +86,7 @@ export function InterventionDialog({ isOpen, onClose, intervention }: Interventi
           {/* Countdown Circle */}
           <div className="w-40 h-40 rounded-full border-4 border-primary flex items-center justify-center bg-background shadow-xl">
             <div
-              className="text-8xl font-bold text-black animate-pulse pb-2"
+              className="text-8xl font-bold text-foreground animate-pulse pb-2"
             >
               {countdownValue}
             </div>

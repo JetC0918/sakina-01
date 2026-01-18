@@ -55,7 +55,7 @@ class JournalEntry(Base):
     # Entry content
     entry_type = Column(Enum(EntryType), default=EntryType.text)
     content = Column(Text, nullable=False)
-    mood = Column(Enum(MoodType), nullable=False)
+    mood = Column(Enum(MoodType), nullable=True)  # Optional - AI will detect if not provided
     
     # AI Analysis results (populated after creation)
     stress_score = Column(Integer, nullable=True)  # 0-100

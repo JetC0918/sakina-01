@@ -29,7 +29,7 @@ Analyze this journal entry and provide insights:
 
 **Journal Entry:** {content}
 
-**User's self-reported mood:** {mood}
+{mood_context}
 
 **Instructions:**
 1. Assess the stress level (0-100, where 0 is completely calm and 100 is extremely stressed)
@@ -37,10 +37,10 @@ Analyze this journal entry and provide insights:
 3. Extract 2-3 key themes or concerns
 4. Suggest an appropriate intervention if stress is elevated
 5. Write a warm, supportive message (1-2 sentences, NO clinical language)
+6. Determine the user's mood based on the entry content (choose from: Stressed, Anxious, Tired, Okay, Calm, Energized, Grateful, Focused, Happy, Exhausted, Frustrated)
 
 **IMPORTANT:** Respond ONLY with valid JSON in this EXACT format (no markdown, no extra text):
-{{"stress_score": <number 0-100>, "emotional_tone": "<1-2 words>", "key_themes": ["<theme1>", "<theme2>"], "suggested_intervention": "<breathing|grounding|reflection|null>", "supportive_message": "<warm supportive message>"}}
-"""
+{{"stress_score": <number 0-100>, "emotional_tone": "<1-2 words>", "key_themes": ["<theme1>", "<theme2>"], "suggested_intervention": "<breathing|grounding|reflection|null>", "supportive_message": "<warm supportive message>", "detected_mood": "<one of the mood options>"}}"""
 
 NUDGE_PROMPT = """You are Sakina, a proactive wellness companion. Based on the user's recent journal patterns, 
 decide if they need a gentle intervention nudge.
@@ -79,19 +79,25 @@ INSIGHTS_PROMPT = """You are Sakina, analyzing a user's wellness patterns over t
 # Service Functions
 # ═══════════════════════════════════════════════════════════════════════════════
 
-async def analyze_journal_entry(content: str, mood: str) -> dict:
+async def analyze_journal_entry(content: str, mood: Optional[str] = None) -> dict:
     """
     Analyze a journal entry for stress signals and emotional tone.
     
     Args:
         content: Journal entry text
-        mood: User's self-reported mood
+        mood: User's self-reported mood (optional - AI will detect if not provided)
         
     Returns:
-        Analysis results with stress_score, emotional_tone, key_themes, etc.
+        Analysis results with stress_score, emotional_tone, key_themes, detected_mood, etc.
     """
     try:
-        prompt = ANALYSIS_PROMPT.format(content=content, mood=mood)
+        # Build mood context for prompt
+        if mood:
+            mood_context = f"**User's self-reported mood:** {mood}"
+        else:
+            mood_context = "**User's mood:** Not provided - please detect from the journal content"
+        
+        prompt = ANALYSIS_PROMPT.format(content=content, mood_context=mood_context)
         response = await asyncio.to_thread(model.generate_content, prompt)
         
         # Parse JSON from response
@@ -99,10 +105,11 @@ async def analyze_journal_entry(content: str, mood: str) -> dict:
         
         # Validate required fields
         result.setdefault("stress_score", 50)
-        result.setdefault("emotional_tone", mood)
+        result.setdefault("emotional_tone", mood or "neutral")
         result.setdefault("key_themes", [])
         result.setdefault("suggested_intervention", None)
         result.setdefault("supportive_message", "Thank you for sharing. I'm here with you.")
+        result.setdefault("detected_mood", mood or "Okay")  # Default to Okay if not detected
         
         # Clamp stress score to valid range
         result["stress_score"] = max(0, min(100, result["stress_score"]))
@@ -114,10 +121,11 @@ async def analyze_journal_entry(content: str, mood: str) -> dict:
         # Return fallback response on error
         return {
             "stress_score": 50,
-            "emotional_tone": mood,
+            "emotional_tone": mood or "neutral",
             "key_themes": [],
             "suggested_intervention": None,
-            "supportive_message": "Thank you for sharing. I'm here with you."
+            "supportive_message": "Thank you for sharing. I'm here with you.",
+            "detected_mood": mood or "Okay"
         }
 
 

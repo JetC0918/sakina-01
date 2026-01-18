@@ -25,6 +25,7 @@ router = APIRouter()
 async def _analyze_and_update_entry(entry_id: UUID):
     """
     Background task to analyze journal entry with AI and update the record.
+    Also sets mood if not provided by user.
     """
     try:
         db = SessionLocal()
@@ -33,8 +34,9 @@ async def _analyze_and_update_entry(entry_id: UUID):
             if not entry:
                 return
         
-            # Run AI analysis
-            analysis = await analyze_journal_entry(entry.content, entry.mood.value)
+            # Run AI analysis - pass mood value if present, else None
+            current_mood = entry.mood.value if entry.mood else None
+            analysis = await analyze_journal_entry(entry.content, current_mood)
         
             # Update entry with analysis results
             entry.stress_score = analysis["stress_score"]
@@ -43,6 +45,16 @@ async def _analyze_and_update_entry(entry_id: UUID):
             entry.suggested_intervention = analysis["suggested_intervention"]
             entry.supportive_message = analysis["supportive_message"]
             entry.analyzed_at = datetime.utcnow()
+            
+            # If mood wasn't provided by user, set it from AI detection
+            if entry.mood is None and analysis.get("detected_mood"):
+                detected_mood_str = analysis["detected_mood"]
+                # Match to MoodType enum (case-insensitive)
+                mood_enum = next(
+                    (m for m in MoodType if m.value.lower() == detected_mood_str.lower()), 
+                    MoodType.Okay  # Default fallback
+                )
+                entry.mood = mood_enum
         
             db.commit()
         finally:
@@ -62,15 +74,16 @@ async def create_journal_entry(
     """
     Create a new journal entry.
     
+    Mood is optional - if not provided, AI will detect it during analysis.
     AI analysis is triggered in the background and will be available
     when fetching the entry later.
     """
-    # Create new entry
+    # Create new entry - mood can be None
     db_entry = JournalEntry(
         user_id=UUID(user_id),
         entry_type=EntryType(entry.entry_type),
         content=entry.content,
-        mood=MoodType(entry.mood)
+        mood=MoodType(entry.mood) if entry.mood else None
     )
     
     db.add(db_entry)
